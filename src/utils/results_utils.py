@@ -147,25 +147,39 @@ def get_vowel_percentage(df_char_cleaned:pd.DataFrame):
 
     return percent_vowels
 
-def create_first_letter_df(df_char_cleaned:pd.DataFrame):
-    #Regardons pour hommes et femmes séparémeent
-    df_char_cleaned['first_letter'] = df_char_cleaned['Character_name'].apply(lambda name: name[0].lower())
-    first_letter_counts_H = df_char_cleaned[df_char_cleaned['Sex'] == 'M']['first_letter'].value_counts()
-    first_letter_counts_F = df_char_cleaned[df_char_cleaned['Sex'] == 'F']['first_letter'].value_counts()
+def create_letter_count_df(df_char_cleaned:pd.DataFrame,ind:int):
+
+    #Let's look at Male and Female characters separatly
+    df_char_cleaned['first_letter'] = df_char_cleaned['Character_name'].apply(lambda name: name[ind].lower())
+    letter_counts_H = df_char_cleaned[df_char_cleaned['Sex'] == 'M']['first_letter'].value_counts()
+    letter_counts_F = df_char_cleaned[df_char_cleaned['Sex'] == 'F']['first_letter'].value_counts()
 
     male_count = df_char_cleaned[df_char_cleaned['Sex'] == 'M'].shape[0]
     female_count = df_char_cleaned[df_char_cleaned['Sex'] == 'F'].shape[0]
 
-    first_letter_counts_H_percentage = first_letter_counts_H/male_count
-    first_letter_counts_F_percentage = first_letter_counts_F/female_count
+    letter_counts_H_percentage = letter_counts_H/male_count
+    letter_counts_F_percentage = letter_counts_F/female_count
 
-    #Let's merge the two series
-    first_letter_counts = pd.concat([first_letter_counts_H_percentage, first_letter_counts_F_percentage], axis=1)
-    first_letter_counts = first_letter_counts.head(26)
-    first_letter_counts.columns = ['first_letter_men', 'first_letter_women']
+    letter_counts = pd.concat([letter_counts_H_percentage, letter_counts_F_percentage], axis=1)
+    letter_counts = letter_counts.head(26)
+    letter_counts.columns = ['first_letter_men', 'first_letter_women']
 
-    return first_letter_counts
+    return letter_counts
 
+def get_age_sex_percentage(df_char_cleaned:pd.DataFrame):
+    age_bins = [0, 12, 17, 24, 34, 44, 54, 64, 74, 84, 100]
+    age_labels = [
+        '<12y', '13y-17y', '18y-24y', '25y-34y', '35y-44y', 
+        '45y-54y', '55y-64y', '65y-74y', '75y-84y', '>85y'
+    ]
+
+    df_char_cleaned['age_category'] = pd.cut(df_char_cleaned['Actor_age'], bins=age_bins, labels=age_labels, right=False)
+
+    age_sex_counts = df_char_cleaned.groupby(['age_category', 'Sex']).size().unstack(fill_value=0)
+    total_counts = df_char_cleaned['Sex'].value_counts()
+    age_sex_percentage = age_sex_counts.div(total_counts, axis=1) * 100
+
+    return age_sex_percentage, age_labels
 
 ### ---------- Country Analysis ---------------------
 
@@ -228,3 +242,33 @@ def create_nb_movie_df(movies_df:pd.DataFrame)->pd.DataFrame:
     df_nb_movie.columns = ['Number_of_movies']
     df_nb_movie = df_nb_movie.reset_index()
     return df_nb_movie
+
+### ---------- N-gram Analysis ---------------------
+
+def create_ngram(df_char_cleaned:pd.DataFrame):
+    vectorizer = CountVectorizer(analyzer='char', ngram_range=(2, 3))
+    char_ngrams = vectorizer.fit_transform(df_char_cleaned['Character_name'])
+    ngram_df = pd.DataFrame(char_ngrams.toarray(), columns=vectorizer.get_feature_names_out())
+    ngram_df = ngram_df.astype('float32') # converting to float32 to decrease the computing time
+
+    return ngram_df
+
+def kmeans_clustering(ngram_df:pd.DataFrame,df_char_cleaned:pd.DataFrame):
+    kmeans = MiniBatchKMeans(n_clusters=10, batch_size=1000, random_state=42) 
+    df_char_cleaned['cluster'] = kmeans.fit_predict(ngram_df)
+
+def ipca_reduction(ngram_df:pd.DataFrame):
+    ipca = IncrementalPCA(n_components=3, batch_size=500)
+    pca_result = ipca.fit_transform(ngram_df)
+    loadings = pd.DataFrame(ipca.components_.T, columns=[f'PC{i+1}' for i in range(ipca.n_components_)], index=ngram_df.columns)
+    loadings['PC1']=loadings['PC1'].apply(abs)
+
+    return pca_result,loadings
+
+def create_df_country(df_char_cleaned:pd.DataFrame,pca_result:pd.DataFrame):
+    df_country = df_char_cleaned.copy()
+    df_country['pca_one'] = pca_result[:, 0]
+    df_country['pca_two'] = pca_result[:, 1]
+    df_country['pca_three'] = pca_result[:, 2]
+    return df_country
+
