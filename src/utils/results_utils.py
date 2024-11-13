@@ -4,8 +4,6 @@ Script containing functions used in results.
 import numpy as np
 import pandas as pd
 import json
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.preprocessing import LabelEncoder
@@ -117,6 +115,56 @@ def count_name_appearance_by_genre(df, genres=genres_list, name='Tom'):
 
     return genre_counts_df, df_name
 
+### ---------- Gender Analysis ---------------------
+
+def get_vowel_stats(df_char_cleaned:pd.DataFrame):
+    vowels = set('aeiouy')
+
+    def count_vowels(name):
+        return sum(1 for char in name.lower() if char in vowels)
+
+    def count_consonants(name):
+        return sum(1 for char in name.lower() if char not in vowels)
+
+    df_char_cleaned['vowel_count'] = df_char_cleaned['Character_name'].apply(count_vowels)
+    df_char_cleaned['consonant_count'] = df_char_cleaned['Character_name'].apply(count_consonants)
+
+    stats_gender_vowels = df_char_cleaned.groupby('Sex')['vowel_count'].agg(['mean', 'std'])
+    stats_gender_consonants = df_char_cleaned.groupby('Sex')['consonant_count'].agg(['mean', 'std'])
+    return stats_gender_vowels, stats_gender_consonants
+
+def get_length_stats(df_char_cleaned:pd.DataFrame):
+    df_char_cleaned['name_length'] = df_char_cleaned['Character_name'].apply(lambda name: len(name))
+    stats_length = df_char_cleaned.groupby('Sex')['name_length'].agg(['mean', 'std'])
+
+    return stats_length
+
+def get_vowel_percentage(df_char_cleaned:pd.DataFrame):
+    df_char_cleaned['vowel_percentage'] = df_char_cleaned['vowel_count'] / df_char_cleaned['name_length']
+    percent_vowels = df_char_cleaned.groupby('Sex')['vowel_percentage'].agg(['mean', 'std'])
+
+    return percent_vowels
+
+def create_first_letter_df(df_char_cleaned:pd.DataFrame):
+    #Regardons pour hommes et femmes séparémeent
+    df_char_cleaned['first_letter'] = df_char_cleaned['Character_name'].apply(lambda name: name[0].lower())
+    first_letter_counts_H = df_char_cleaned[df_char_cleaned['Sex'] == 'M']['first_letter'].value_counts()
+    first_letter_counts_F = df_char_cleaned[df_char_cleaned['Sex'] == 'F']['first_letter'].value_counts()
+
+    male_count = df_char_cleaned[df_char_cleaned['Sex'] == 'M'].shape[0]
+    female_count = df_char_cleaned[df_char_cleaned['Sex'] == 'F'].shape[0]
+
+    first_letter_counts_H_percentage = first_letter_counts_H/male_count
+    first_letter_counts_F_percentage = first_letter_counts_F/female_count
+
+    #Let's merge the two series
+    first_letter_counts = pd.concat([first_letter_counts_H_percentage, first_letter_counts_F_percentage], axis=1)
+    first_letter_counts = first_letter_counts.head(26)
+    first_letter_counts.columns = ['first_letter_men', 'first_letter_women']
+
+    return first_letter_counts
+
+
 ### ---------- Country Analysis ---------------------
 
 def country_to_continent(country_name:str, countries_code:list[str]):
@@ -136,6 +184,7 @@ def country_to_continent(country_name:str, countries_code:list[str]):
 
 
 def create_continent_df(df_char_cleaned:pd.DataFrame)->pd.DataFrame:
+
     df_char_cleaned['primary_country'] = df_char_cleaned['Country'].str[0]
     df_char_cleaned['Continent'] = df_char_cleaned['primary_country'].apply(country_to_continent)
 
@@ -151,3 +200,29 @@ def create_continent_df(df_char_cleaned:pd.DataFrame)->pd.DataFrame:
 
     return df_continents
 
+def create_top_names_df(df_char_cleaned:pd.DataFrame)->pd.DataFrame:
+
+    def tie_case(name_row):
+        if isinstance(name_row,np.ndarray):
+            name_row = name_row[0]
+        return name_row
+
+    country_top_name = df_char_cleaned.groupby(['primary_country','Sex'])['Character_name'].agg(pd.Series.mode)
+    df_top_name = country_top_name.to_frame().reset_index()
+    df_top_name.columns = ['primary_country', 'Sex', 'Name']
+    df_top_name = df_top_name.pivot(index='primary_country',columns='Sex',values='Name').reset_index()
+    df_top_name.columns = ['primary_country', 'Female_name', 'Male_name']
+
+    df_top_name['Female_name'] = df_top_name['Female_name'].apply(tie_case) #In case of a tie we choose the 1st element
+    df_top_name['Male_name'] = df_top_name['Male_name'].apply(tie_case) #In case of a tie we choose the 1st element
+
+    return df_top_name
+
+def create_nb_movie_df(movies_df:pd.DataFrame)->pd.DataFrame:
+    movies_df['primary_country'] = movies_df['Country'].str[0]
+    movies_df['Continent'] = movies_df['primary_country'].apply(country_to_continent)
+    proportion_country = movies_df.groupby(['Continent', 'primary_country'])['primary_country'].count()
+    df_nb_movie = proportion_country.to_frame()
+    df_nb_movie.columns = ['Number_of_movies']
+    df_nb_movie = df_nb_movie.reset_index()
+    return df_nb_movie
