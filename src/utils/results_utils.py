@@ -228,3 +228,12 @@ def create_nb_movie_df(movies_df:pd.DataFrame)->pd.DataFrame:
     df_nb_movie.columns = ['Number_of_movies']
     df_nb_movie = df_nb_movie.reset_index()
     return df_nb_movie
+
+
+### ---------- NGram Analysis ---------------------
+
+def top_genre_search(genres:list[str]):
+    for genre in genres:
+        if genre in top_genres:
+            return genre         
+    return 'other'
