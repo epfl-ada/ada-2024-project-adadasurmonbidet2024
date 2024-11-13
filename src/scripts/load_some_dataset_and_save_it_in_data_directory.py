@@ -22,27 +22,37 @@ character_df = pd.read_csv(
            'Actor_age', 'Freebase_character_map', '?', '??']
 )
 
+#Remove rows with NaN in 'Name',Countries' and 'Genres' columns
+movies_df['Languages'] = movies_df['Languages'].apply(str_dict_to_values)
+movies_df['Country'] = movies_df['Country'].apply(str_dict_to_values)
+movies_df['Genres'] = movies_df['Genres'].apply(str_dict_to_values)
+
 # Remove rows with NaN in 'Character_name' and filter non-English names
 character_df = remove_nan_rows(character_df, 'Character_name')
 character_df['Character_name'] = character_df['Character_name'].apply(filter_non_english_names)
 
-# Process common names (j'ai rien comprs à cette partie)
-most_common_name = character_df['Character_name'].value_counts().idxmax()
-kept_names = character_df[character_df['Character_name'] != most_common_name]
+# Filter out english words from character names
+df_character_filtered = character_df.copy()
+df_character_filtered['Character_name']=df_character_filtered['Character_name'].apply(filter_non_english_names)
 
-# Handle deleted names and keep only meaningful names
-deleted_names = character_df[character_df['Character_name'] == most_common_name].copy()
-deleted_names['Character_name'] = deleted_names['Character_name'].apply(keep_names)
-saved_names = deleted_names[deleted_names['Character_name'] != '']
+# Cluster the deleted names in a dataframe in order to save back some of them
+values_filtered = df_character_filtered['Character_name'].value_counts()
+deleted_names = character_df[df_character_filtered['Character_name']==values_filtered.index[0]]
 
-# Concatenate filtered names and keep only first names
-kept_names = pd.concat([kept_names, saved_names], ignore_index=True)
+# Let's put the kept names together
+kept_names = df_character_filtered[df_character_filtered['Character_name']!=values_filtered.index[0]]
+
+# We want to save back the names that were first considered as common names
+deleted_names_filtered = deleted_names.copy()
+deleted_names_filtered['Character_name']=deleted_names_filtered['Character_name'].apply(keep_names)
+saved_names = deleted_names_filtered[deleted_names_filtered['Character_name']!='']
+
+# Concatenate the kept names and the saved names
+kept_names = pd.concat([kept_names, saved_names])
 kept_names['Character_name'] = kept_names['Character_name'].apply(keep_first_name)
 
-# Merge cleaned DataFrames and save the result
-df_cleaned = pd.merge(
-    movies_df, kept_names, on="Wikipedia_ID", how="inner"
-)[['Wikipedia_ID', 'Name', 'Languages', 'Country', 'Genres', 'Character_name', 'Sex']]
-df_cleaned = remove_nan_rows(df_cleaned, 'Character_name')
+# Now, let's merge with the movies dataframe
 
-df_cleaned.to_csv('data/cleaned.csv', index=False)
+df_char_cleaned = pd.merge(movies_df,kept_names, on="Wikipedia_ID",how="inner")[['Wikipedia_ID','Name','Languages','Country','Genres','Character_name','Sex']]
+
+df_char_cleaned.to_csv('data/cleaned.csv', index=False)
