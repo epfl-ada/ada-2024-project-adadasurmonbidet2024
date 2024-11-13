@@ -14,6 +14,8 @@ from sklearn.feature_selection import VarianceThreshold
 import pycountry
 import pycountry_convert as pc
 
+##############  Genre Analysis ####################
+
 genres_list = ['Action & Adventure', 'Drama', 'Comedy', 'Horror & Thriller', 
               'Fantasy & Sci-Fi', 'Historical & War', 'Romance', 'Documentary', 
               'Music & Performance', 'Cult & B-Movies', 'Other']
