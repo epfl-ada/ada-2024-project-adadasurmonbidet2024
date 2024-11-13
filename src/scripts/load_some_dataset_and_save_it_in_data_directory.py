@@ -53,6 +53,6 @@ kept_names['Character_name'] = kept_names['Character_name'].apply(keep_first_nam
 
 # Now, let's merge with the movies dataframe
 
-df_char_cleaned = pd.merge(movies_df,kept_names, on="Wikipedia_ID",how="inner")[['Wikipedia_ID','Name','Languages','Country','Genres','Character_name','Sex']]
+df_char_cleaned = pd.merge(movies_df,kept_names, on="Wikipedia_ID",how="inner")[['Wikipedia_ID','Name','Languages','Country','Genres','Character_name','Sex','Actor_age']]
 
 df_char_cleaned.to_csv('data/cleaned.csv', index=False)
