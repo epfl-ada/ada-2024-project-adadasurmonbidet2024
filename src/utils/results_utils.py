@@ -13,6 +13,9 @@ from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import IncrementalPCA
 from sklearn.feature_selection import VarianceThreshold
 
+import pycountry
+import pycountry_convert as pc
+
 genres_list = ['Action & Adventure', 'Drama', 'Comedy', 'Horror & Thriller', 
               'Fantasy & Sci-Fi', 'Historical & War', 'Romance', 'Documentary', 
               'Music & Performance', 'Cult & B-Movies', 'Other']
@@ -113,3 +116,38 @@ def count_name_appearance_by_genre(df, genres=genres_list, name='Tom'):
     genre_counts_df = pd.DataFrame([genre_counts])
 
     return genre_counts_df, df_name
+
+### ---------- Country Analysis ---------------------
+
+def country_to_continent(country_name:str, countries_code:list[str]):
+    try:
+        # Get the alpha-2 country code
+        country_code_alpha2 = pycountry.countries.lookup(country_name).alpha_2
+        country_code_alpha3 = pycountry.countries.lookup(country_name).alpha_3
+        if country_code_alpha3 not in countries_code:
+            countries_code.append(country_code_alpha3)
+        continent_code = pc.country_alpha2_to_continent_code(country_code_alpha2)
+
+        continent_name = pc.convert_continent_code_to_continent_name(continent_code)
+        return continent_name
+    except (KeyError, AttributeError, LookupError):
+        return None 
+
+
+
+def create_continent_df(df_char_cleaned:pd.DataFrame)->pd.DataFrame:
+    df_char_cleaned['primary_country'] = df_char_cleaned['Country'].str[0]
+    df_char_cleaned['Continent'] = df_char_cleaned['primary_country'].apply(country_to_continent)
+
+    continents = df_char_cleaned.groupby(['Continent','Sex'])['Character_name'].agg(pd.Series.mode)
+    df_continents = continents.to_frame().reset_index()
+    df_continents.columns = ['Continent', 'Sex', 'Name']
+    df_continents = df_continents.pivot(index='Continent',columns='Sex',values='Name').reset_index()
+    df_continents.columns = ['Continent', 'Female_name', 'Male_name']
+    
+    # for Africa we will pick one of the names to display
+    df_continents.loc[0,'Female_name'] = 'Amina*'
+    df_continents.loc[0,'Male_name']='Omar*'
+
+    return df_continents
+
