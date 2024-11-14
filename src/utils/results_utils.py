@@ -218,8 +218,8 @@ def create_letter_count_df(df, letter_position):
     # Convert counts to percentages
     male_count = df_letter[df_letter['Sex'] == 'M'].shape[0]
     female_count = df_letter[df_letter['Sex'] == 'F'].shape[0]
-    letter_counts_H_percentage = letter_counts_H / male_count
-    letter_counts_F_percentage = letter_counts_F / female_count
+    letter_counts_H_percentage = letter_counts_H / male_count*100
+    letter_counts_F_percentage = letter_counts_F / female_count*100
 
     # Combine the two series
     letter_counts = pd.concat([letter_counts_H_percentage, letter_counts_F_percentage], axis=1)
