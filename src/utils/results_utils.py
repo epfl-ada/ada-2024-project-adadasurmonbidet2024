@@ -89,7 +89,7 @@ def categorize_genre(genre_list: list) -> list:
 
     return categories if categories else ['Other']
 
-def get_top_names_by_genre(phonetic_df, genres = genres_list):
+def get_top_names_by_genre(phonetic_df, nb_of_names, genres = genres_list):
 
     df_male = phonetic_df[phonetic_df['Sex'] == 'M']
     df_female = phonetic_df[phonetic_df['Sex'] == 'F']
@@ -101,12 +101,12 @@ def get_top_names_by_genre(phonetic_df, genres = genres_list):
     for genre in genres:
         male_genre_names = df_male[df_male['Genre_Category'].apply(lambda categories: genre in categories)]
 
-        top_male_names = male_genre_names['Character_name'].value_counts().head(10).index.tolist()
+        top_male_names = male_genre_names['Character_name'].value_counts().head(nb_of_names).index.tolist()
         top_male_names_by_genre[genre] = top_male_names
 
         female_genre_names = df_female[df_female['Genre_Category'].apply(lambda categories: genre in categories)]
 
-        top_female_names = female_genre_names['Character_name'].value_counts().head(10).index.tolist()
+        top_female_names = female_genre_names['Character_name'].value_counts().head(nb_of_names).index.tolist()
         top_female_names_by_genre[genre] = top_female_names
     
     # Convert dictionaries to DataFrames with each genre as a column
@@ -115,31 +115,63 @@ def get_top_names_by_genre(phonetic_df, genres = genres_list):
 
     return frequent_names_m, frequent_names_f
 
-def count_name_appearance_by_genre(df, genres=genres_list, name_substring='Luca'):
-    # Filter the DataFrame for rows where the character name starts with the specified substring
-    df_name = df[df['Character_name'].str.contains(f'^{name_substring}', case=False, na=False)]
-    
-    # Explode Genre_Category list to have one genre per row
-    df_exploded = df_name.explode('Genre_Category')
-    
-    # Filter rows to include only genres in the specified genre list
-    df_exploded = df_exploded[df_exploded['Genre_Category'].isin(genres)]
-    
-    # Group by genre and count unique movies
-    genre_counts = (
-        df_exploded.groupby('Genre_Category')['Wikipedia_ID']
-        .nunique()  # Count unique movies by genre
-        .reindex(genres, fill_value=0)  # Reindex to ensure all genres are included
-    )
-    
-    # Calculate total unique movies across all genres
-    total_count = df_exploded['Wikipedia_ID'].nunique()
-    
-    # Convert to DataFrame for easy viewing
-    genre_counts_df = genre_counts.reset_index().rename(columns={'Wikipedia_ID': 'Count'})
-    
-    # Append the total as a new row
-    genre_counts_df = pd.concat([genre_counts_df, pd.DataFrame({'Genre_Category': ['Total'], 'Count': [total_count]})])
+def create_sunburst_data(frequent_names_f):
+
+     # Création d'un dictionnaire pour stocker les résultats
+    sunburst_data = []
+
+    # Ajouter la racine "Film" comme parent
+    sunburst_data.append({
+        'character': 'Film',
+        'parent': '',
+    })
+
+    for genre in frequent_names_f.columns:
+        sunburst_data.append({
+            'character': genre,
+            'parent': 'Film',  # Film comme parent
+        })
+
+    # Transformation des données : chaque genre comme parent, prénoms comme enfants
+    for genre in frequent_names_f.columns:
+        for idx, prenom in enumerate(frequent_names_f[genre]):
+            sunburst_data.append({
+                'character': prenom,
+                'parent': genre,  # Genre comme parent
+            })
+
+    # Convertir en DataFrame pour plus de lisibilité (optionnel)
+    sunburst_df = pd.DataFrame(sunburst_data)
+
+    # Transformer en dictionnaire
+    data = {
+        'character': sunburst_df['character'].tolist(),
+        'parent': sunburst_df['parent'].tolist(),
+    }
+
+    return data
+
+
+def count_name_appearance_by_genre(df, genres=genres_list, name='Tom'):
+    # Filter the DataFrame for the specified name
+    df_name = df[df['Character_name'] == name]
+
+    # Initialize genre counts dictionary
+    genre_counts = {genre: 0 for genre in genres}
+
+    # Count occurrences by genre
+    for _, row in df_name.iterrows():
+        row_genres = row['Genre_Category']
+        if isinstance(row_genres, list):
+            for genre in row_genres:
+                if genre in genre_counts:
+                    genre_counts[genre] += 1
+        else:
+            if row_genres in genre_counts:
+                genre_counts[row_genres] += 1
+
+    # Convert genre counts to DataFrame
+    genre_counts_df = pd.DataFrame([genre_counts])
 
     return genre_counts_df, df_name
 
