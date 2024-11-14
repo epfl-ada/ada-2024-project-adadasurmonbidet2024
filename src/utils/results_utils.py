@@ -11,6 +11,7 @@ from sklearn.cluster import MiniBatchKMeans
 from sklearn.decomposition import IncrementalPCA
 from sklearn.feature_selection import VarianceThreshold
 
+import plotly.graph_objects as go
 import pycountry
 import pycountry_convert as pc
 
@@ -94,26 +95,31 @@ def get_top_names_by_genre(phonetic_df, genres = genres_list):
 
     return frequent_names_m, frequent_names_f
 
-def count_name_appearance_by_genre(df, genres=genres_list, name='Tom'):
-    # Filter the DataFrame for the specified name
-    df_name = df[df['Character_name'] == name]
-
-    # Initialize genre counts dictionary
-    genre_counts = {genre: 0 for genre in genres}
-
-    # Count occurrences by genre
-    for _, row in df_name.iterrows():
-        row_genres = row['Genre_Category']
-        if isinstance(row_genres, list):
-            for genre in row_genres:
-                if genre in genre_counts:
-                    genre_counts[genre] += 1
-        else:
-            if row_genres in genre_counts:
-                genre_counts[row_genres] += 1
-
-    # Convert genre counts to DataFrame
-    genre_counts_df = pd.DataFrame([genre_counts])
+def count_name_appearance_by_genre(df, genres=genres_list, name_substring='Luca'):
+    # Filter the DataFrame for rows where the character name starts with the specified substring
+    df_name = df[df['Character_name'].str.contains(f'^{name_substring}', case=False, na=False)]
+    
+    # Explode Genre_Category list to have one genre per row
+    df_exploded = df_name.explode('Genre_Category')
+    
+    # Filter rows to include only genres in the specified genre list
+    df_exploded = df_exploded[df_exploded['Genre_Category'].isin(genres)]
+    
+    # Group by genre and count unique movies
+    genre_counts = (
+        df_exploded.groupby('Genre_Category')['Wikipedia_ID']
+        .nunique()  # Count unique movies by genre
+        .reindex(genres, fill_value=0)  # Reindex to ensure all genres are included
+    )
+    
+    # Calculate total unique movies across all genres
+    total_count = df_exploded['Wikipedia_ID'].nunique()
+    
+    # Convert to DataFrame for easy viewing
+    genre_counts_df = genre_counts.reset_index().rename(columns={'Wikipedia_ID': 'Count'})
+    
+    # Append the total as a new row
+    genre_counts_df = pd.concat([genre_counts_df, pd.DataFrame({'Genre_Category': ['Total'], 'Count': [total_count]})])
 
     return genre_counts_df, df_name
 
@@ -147,24 +153,75 @@ def get_vowel_percentage(df_char_cleaned:pd.DataFrame):
 
     return percent_vowels
 
-def create_letter_count_df(df_char_cleaned:pd.DataFrame,ind:int):
+def create_letter_count_df(df, letter_position):
 
-    #Let's look at Male and Female characters separatly
-    df_char_cleaned['first_letter'] = df_char_cleaned['Character_name'].apply(lambda name: name[ind].lower())
-    letter_counts_H = df_char_cleaned[df_char_cleaned['Sex'] == 'M']['first_letter'].value_counts()
-    letter_counts_F = df_char_cleaned[df_char_cleaned['Sex'] == 'F']['first_letter'].value_counts()
+    # Create a copy of the DataFrame and add a column for the selected letter position
+    df_letter = df.copy()
+    df_letter['letter'] = df_letter['Character_name'].apply(lambda name: name[letter_position].lower())
+    
+    # Count occurrences of letters by sex
+    letter_counts_H = df_letter[df_letter['Sex'] == 'M']['letter'].value_counts()
+    letter_counts_F = df_letter[df_letter['Sex'] == 'F']['letter'].value_counts()
 
-    male_count = df_char_cleaned[df_char_cleaned['Sex'] == 'M'].shape[0]
-    female_count = df_char_cleaned[df_char_cleaned['Sex'] == 'F'].shape[0]
+    # Convert counts to percentages
+    male_count = df_letter[df_letter['Sex'] == 'M'].shape[0]
+    female_count = df_letter[df_letter['Sex'] == 'F'].shape[0]
+    letter_counts_H_percentage = letter_counts_H / male_count
+    letter_counts_F_percentage = letter_counts_F / female_count
 
-    letter_counts_H_percentage = letter_counts_H/male_count
-    letter_counts_F_percentage = letter_counts_F/female_count
-
+    # Combine the two series
     letter_counts = pd.concat([letter_counts_H_percentage, letter_counts_F_percentage], axis=1)
-    letter_counts = letter_counts.head(26)
-    letter_counts.columns = ['first_letter_men', 'first_letter_women']
+    letter_counts.columns = ['letter_men', 'letter_women']
+    letter_counts = letter_counts.head(26)  # Limit to top 26 letters
 
-    return letter_counts
+    # Calculate top names for each letter by sex
+    top_letter_names = (
+        df_letter.groupby(['letter', 'Sex'])['Character_name']
+        .apply(lambda x: x.value_counts().head(3).index.tolist())
+        .unstack(fill_value=[])
+    )
+
+    return letter_counts, top_letter_names
+
+def plot_letter_name_percentage(df, letter_position):
+
+    letter_counts, top_letter_names = create_letter_count_df(df, letter_position)
+
+    if letter_position == 0:
+        title = 'Percentage of Names Starting by Each Letter by Gender'
+    else:
+        title = 'Percentage of Names Ending by Each Letter by Gender'
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x=letter_counts.index,
+        y=letter_counts['letter_men'],
+        name='Male',
+        marker_color='skyblue',
+        hovertext=[f"Top names: {', '.join(top_letter_names.loc[letter, 'M'])}" if 'M' in top_letter_names.columns else "" for letter in letter_counts.index],
+        hoverinfo="text"
+    ))
+
+    fig.add_trace(go.Bar(
+        x=letter_counts.index,
+        y=letter_counts['letter_women'],
+        name='Female',
+        marker_color='salmon',
+        hovertext=[f"Top names: {', '.join(top_letter_names.loc[letter, 'F'])}" if 'F' in top_letter_names.columns else "" for letter in letter_counts.index],
+        hoverinfo="text"
+    ))
+
+    fig.update_layout(
+        title=title,
+        xaxis_title='Letter of the Name',
+        yaxis_title='% of Total Names by Gender',
+        barmode='group',
+        yaxis=dict(ticksuffix='%'),
+        legend_title="Gender"
+    )
+
+    fig.show()
 
 def get_age_sex_percentage(df_char_cleaned:pd.DataFrame):
     age_bins = [0, 12, 17, 24, 34, 44, 54, 64, 74, 84, 100]
