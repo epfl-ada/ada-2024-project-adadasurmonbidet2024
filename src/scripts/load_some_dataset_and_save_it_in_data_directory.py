@@ -41,10 +41,7 @@ deleted_names_saved = deleted_names.copy()
 deleted_names_saved['Character_name']=deleted_names_saved['Character_name'].apply(keep_names)
 
 values_saved = deleted_names_saved['Character_name'].value_counts()
-print('Number of names saved:', deleted_names_saved.shape[0])
-print(values_saved)
 saved_names = deleted_names_saved[deleted_names_saved['Character_name']!=values_saved.index[0]]
-print('Number of names saved back:', saved_names.shape[0])
 
 # Concatenate the filtered names and the saved names
 kept_names = pd.concat([kept_names, saved_names])
@@ -52,5 +49,6 @@ kept_names['Character_name'] = kept_names['Character_name'].apply(keep_first_nam
 
 # Merged the filtered character names with the movies dataset to add some informations on the dataset
 df_char_cleaned = pd.merge(movies_df,kept_names, on="Wikipedia_ID",how="inner")[['Wikipedia_ID','Name','Languages','Country','Genres','Character_name','Sex','Actor_age','Release_date']]
-print('Number of rows in the cleaned dataframe:', df_char_cleaned.shape[0])
+print('The cleaned dataset contains',df_char_cleaned.shape[0],'rows and',df_char_cleaned.shape[1],'columns')
 
+df_char_cleaned.to_csv('data/cleaned.csv', index=False)
