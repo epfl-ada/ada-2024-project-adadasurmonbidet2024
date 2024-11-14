@@ -34,6 +34,11 @@ def calculate_column_freq(df, column_name='Character_name'):
     
     return counts_df
 
+############## Statistics ####################
+
+def create_contingency_table(df_char_cleaned:pd.DataFrame,feature1:str,feature2:str):
+    contingency_table = pd.crosstab(df_char_cleaned[feature1], df_char_cleaned[feature2])
+    return contingency_table
 
 ##############  Genre Analysis ####################
 
