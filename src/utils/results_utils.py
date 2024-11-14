@@ -68,7 +68,7 @@ def categorize_genre(genre_list: list) -> list:
 
     return categories if categories else ['Other']
 
-def get_top_names_by_genre(phonetic_df, genres = genres_list):
+def get_top_names_by_genre(phonetic_df, nb_of_names, genres = genres_list):
 
     df_male = phonetic_df[phonetic_df['Sex'] == 'M']
     df_female = phonetic_df[phonetic_df['Sex'] == 'F']
@@ -80,12 +80,12 @@ def get_top_names_by_genre(phonetic_df, genres = genres_list):
     for genre in genres:
         male_genre_names = df_male[df_male['Genre_Category'].apply(lambda categories: genre in categories)]
 
-        top_male_names = male_genre_names['Character_name'].value_counts().head(10).index.tolist()
+        top_male_names = male_genre_names['Character_name'].value_counts().head(nb_of_names).index.tolist()
         top_male_names_by_genre[genre] = top_male_names
 
         female_genre_names = df_female[df_female['Genre_Category'].apply(lambda categories: genre in categories)]
 
-        top_female_names = female_genre_names['Character_name'].value_counts().head(10).index.tolist()
+        top_female_names = female_genre_names['Character_name'].value_counts().head(nb_of_names).index.tolist()
         top_female_names_by_genre[genre] = top_female_names
     
     # Convert dictionaries to DataFrames with each genre as a column
@@ -93,6 +93,43 @@ def get_top_names_by_genre(phonetic_df, genres = genres_list):
     frequent_names_f = pd.DataFrame.from_dict(top_female_names_by_genre, orient='index').transpose()
 
     return frequent_names_m, frequent_names_f
+
+def create_sunburst_data(frequent_names_f):
+
+     # Création d'un dictionnaire pour stocker les résultats
+    sunburst_data = []
+
+    # Ajouter la racine "Film" comme parent
+    sunburst_data.append({
+        'character': 'Film',
+        'parent': '',
+    })
+
+    for genre in frequent_names_f.columns:
+        sunburst_data.append({
+            'character': genre,
+            'parent': 'Film',  # Film comme parent
+        })
+
+    # Transformation des données : chaque genre comme parent, prénoms comme enfants
+    for genre in frequent_names_f.columns:
+        for idx, prenom in enumerate(frequent_names_f[genre]):
+            sunburst_data.append({
+                'character': prenom,
+                'parent': genre,  # Genre comme parent
+            })
+
+    # Convertir en DataFrame pour plus de lisibilité (optionnel)
+    sunburst_df = pd.DataFrame(sunburst_data)
+
+    # Transformer en dictionnaire
+    data = {
+        'character': sunburst_df['character'].tolist(),
+        'parent': sunburst_df['parent'].tolist(),
+    }
+
+    return data
+
 
 def count_name_appearance_by_genre(df, genres=genres_list, name='Tom'):
     # Filter the DataFrame for the specified name
