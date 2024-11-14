@@ -120,14 +120,14 @@ def get_top_names_by_genre(phonetic_df, nb_of_names, genres = genres_list):
 def create_sunburst_data(frequent_names_f):
     sunburst_data = []
     sunburst_data.append({
-        'character': 'Film',
+        'character': "Movies' Genres",
         'parent': '',
     })
 
     for genre in frequent_names_f.columns:
         sunburst_data.append({
             'character': genre,
-            'parent': 'Film', 
+            'parent': "Movies' Genres", 
         })
 
     for genre in frequent_names_f.columns:
