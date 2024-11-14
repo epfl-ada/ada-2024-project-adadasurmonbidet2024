@@ -22,6 +22,11 @@ character_df = pd.read_csv(
            'Actor_age', 'Freebase_character_map', '?', '??']
 )
 
+#Transform dictionnaries into strings for rows where there are dictionnaries in 'Name',Countries' and 'Genres' columns
+movies_df['Languages'] = movies_df['Languages'].apply(str_dict_to_values)
+movies_df['Country'] = movies_df['Country'].apply(str_dict_to_values)
+movies_df['Genres'] = movies_df['Genres'].apply(str_dict_to_values)
+
 # Remove rows with NaN in 'Character_name' and filter non-English names
 character_df = remove_nan_rows(character_df, 'Character_name')
 character_df['Character_name'] = character_df['Character_name'].apply(filter_non_english_names)
