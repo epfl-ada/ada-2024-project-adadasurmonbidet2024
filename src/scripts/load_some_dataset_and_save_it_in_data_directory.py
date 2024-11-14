@@ -17,7 +17,7 @@ movies_df = pd.read_csv(
 )
 character_df = pd.read_csv(
     'src/MovieSummaries/character.metadata.tsv', sep='\t', 
-    names=['Wikipedia_ID', 'Freebase_ID', 'Release_date', 'Character_name', 
+    names=['Wikipedia_ID', 'Freebase_ID', 'Release_date1', 'Character_name', 
            'Actor_DOB', 'Sex', 'Height', 'Ethnicity', 'Actor_name', 
            'Actor_age', 'Freebase_character_map', '?', '??']
 )
@@ -54,7 +54,7 @@ kept_names['Character_name'] = kept_names['Character_name'].apply(keep_first_nam
 
 # Now, let's merge with the movies dataframe
 
-df_char_cleaned = pd.merge(movies_df,kept_names, on="Wikipedia_ID",how="inner")[['Wikipedia_ID','Name','Languages','Country','Genres','Character_name','Sex','Actor_age']]
+df_char_cleaned = pd.merge(movies_df,kept_names, on="Wikipedia_ID",how="inner")[['Wikipedia_ID','Name','Languages','Country','Genres','Character_name','Sex','Actor_age','Release_date']]
 print('Number of rows in the cleaned dataframe:', df_char_cleaned.shape[0])
 
 df_char_cleaned.to_csv('data/cleaned.csv', index=False)

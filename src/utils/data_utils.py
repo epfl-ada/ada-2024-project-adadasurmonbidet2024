@@ -4,8 +4,8 @@ Script containing functions used in data cleaning processes.
 
 import json
 import pandas as pd
-from nltk.corpus import words, names
 import nltk
+from nltk.corpus import words, names
 
 # Download the necessary nltk datasets (only needed once)
 nltk.download('words')
