@@ -343,23 +343,41 @@ def create_top_names_df(df_char_cleaned:pd.DataFrame)->pd.DataFrame:
 
     return df_top_name
 
-def create_nb_movie_df(movies_df:pd.DataFrame)->pd.DataFrame:
-    movies_df['primary_country'] = movies_df['Country'].str[0]
-    movies_df['Continent'] = movies_df['primary_country'].apply(country_to_continent)
-    proportion_country = movies_df.groupby(['Continent', 'primary_country'])['primary_country'].count()
-    df_nb_movie = proportion_country.to_frame()
-    df_nb_movie.columns = ['Number_of_movies']
-    df_nb_movie = df_nb_movie.reset_index()
-    return df_nb_movie
+def add_movie_count(df_char_cleaned:pd.DataFrame, df_top_names:pd.DataFrame)->None:
+    unique_name_counts = df_char_cleaned.groupby('primary_country')['Name'].nunique()
+    df_top_names['Number_of_movies'] = df_top_names['primary_country'].map(unique_name_counts)
+
+def cleaning_non_countries(df_top_names:pd.DataFrame)->pd.DataFrame:
+
+    #For the United Kingdom ['England','Wales','Northern Ireland','Kingdom of Great Britain']
+    df_top_names = df_top_names[df_top_names['primary_country'] != 'England']
+    df_top_names = df_top_names[df_top_names['primary_country'] != 'Wales']
+    df_top_names = df_top_names[df_top_names['primary_country'] != 'Northern Ireland']
+    df_top_names = df_top_names[df_top_names['primary_country'] != 'Kingdom of Great Britain']
+
+    #For Germany ['Weimar Republic','West Germany','German Democratic Republic']
+    df_top_names = df_top_names[df_top_names['primary_country'] != 'Weimar Republic']
+    df_top_names = df_top_names[df_top_names['primary_country'] != 'West Germany']
+    df_top_names = df_top_names[df_top_names['primary_country'] != 'German Democratic Republic']
+
+    #For Russia
+    df_top_names['primary_country'] = df_top_names['primary_country'].replace('Soviet Union','Russia')
+
+    df_top_names = (
+    df_top_names.groupby('primary_country', as_index=False).agg({'Number_of_movies': 'sum', 'Female_name': 'first','Male_name': 'first'}))
+    return df_top_names
+
+
 
 
 ### ---------- NGram Analysis ---------------------
 
-def top_genre_search(genres:list[str]):
+'''def top_genre_search(genres:list[str]):
     for genre in genres:
         if genre in top_genres:
             return genre         
     return 'other'
+
 ### ---------- N-gram Analysis ---------------------
 
 def create_ngram(df_char_cleaned:pd.DataFrame):
@@ -371,7 +389,7 @@ def create_ngram(df_char_cleaned:pd.DataFrame):
     return ngram_df
 
 def kmeans_clustering(ngram_df:pd.DataFrame,df_char_cleaned:pd.DataFrame):
-    kmeans = MiniBatchKMeans(n_clusters=10, batch_size=1000, random_state=42) 
+    kmeans = MiniBatchKMeans(n_clusters=4, batch_size=1000, random_state=42) 
     df_char_cleaned['cluster'] = kmeans.fit_predict(ngram_df)
 
 def ipca_reduction(ngram_df:pd.DataFrame):
@@ -388,3 +406,4 @@ def create_df_country(df_char_cleaned:pd.DataFrame,pca_result:pd.DataFrame):
     df_country['pca_two'] = pca_result[:, 1]
     df_country['pca_three'] = pca_result[:, 2]
     return df_country
+    '''
