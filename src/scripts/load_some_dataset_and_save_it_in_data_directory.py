@@ -22,7 +22,7 @@ character_df = pd.read_csv(
            'Actor_age', 'Freebase_character_map', '?', '??']
 )
 
-#Remove rows with NaN in 'Name',Countries' and 'Genres' columns
+#Transform dictionnaries into strings for rows where there are dictionnaries in 'Name',Countries' and 'Genres' columns
 movies_df['Languages'] = movies_df['Languages'].apply(str_dict_to_values)
 movies_df['Country'] = movies_df['Country'].apply(str_dict_to_values)
 movies_df['Genres'] = movies_df['Genres'].apply(str_dict_to_values)
