@@ -275,20 +275,54 @@ def plot_letter_name_percentage(df, letter_position):
 
     fig.show()
 
-def get_age_sex_percentage(df_char_cleaned:pd.DataFrame):
+def plot_age_sex_distribution_with_top_names(df_char_cleaned: pd.DataFrame):
+    # Define age bins and labels
     age_bins = [0, 12, 17, 24, 34, 44, 54, 64, 74, 84, 100]
     age_labels = [
         '<12y', '13y-17y', '18y-24y', '25y-34y', '35y-44y', 
         '45y-54y', '55y-64y', '65y-74y', '75y-84y', '>85y'
     ]
 
+    # Add age categories to the DataFrame
     df_char_cleaned['age_category'] = pd.cut(df_char_cleaned['Actor_age'], bins=age_bins, labels=age_labels, right=False)
 
+    # Calculate the age and sex counts and percentages
     age_sex_counts = df_char_cleaned.groupby(['age_category', 'Sex']).size().unstack(fill_value=0)
     total_counts = df_char_cleaned['Sex'].value_counts()
     age_sex_percentage = age_sex_counts.div(total_counts, axis=1) * 100
 
-    return age_sex_percentage, age_labels
+    # Find the top 3 names for each age category and gender
+    top_names = (
+        df_char_cleaned.groupby(['age_category', 'Sex'])['Character_name']
+        .apply(lambda x: x.value_counts().head(3).index.tolist())
+        .unstack(fill_value=[])
+    )
+
+    # Create the plot
+    fig = go.Figure()
+
+    for sex in ['M', 'F']:
+        fig.add_trace(go.Bar(
+            x=age_labels,
+            y=age_sex_percentage[sex],
+            name='Male' if sex == 'M' else 'Female',
+            marker_color='skyblue' if sex == 'M' else 'salmon',
+            hovertext=[f"Top names: {', '.join(top_names.loc[age, sex])}" for age in age_labels],
+            hoverinfo="text"
+        ))
+
+    # Update layout for readability
+    fig.update_layout(
+        title='Percentage of Males and Females in Each Age Category',
+        xaxis_title='Age Category',
+        yaxis_title='% of Total Males/Females',
+        barmode='group',
+        xaxis=dict(tickvals=age_labels, tickangle=0),
+        yaxis=dict(ticksuffix='%'),
+        legend=dict(title="Gender")
+    )
+
+    fig.show()
 
 ### ---------- Country Analysis ---------------------
 
