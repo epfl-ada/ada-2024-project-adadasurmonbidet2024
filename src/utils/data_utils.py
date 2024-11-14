@@ -64,7 +64,10 @@ def keep_names(name: str) -> str:
     Keep only names that are recognized as valid first names (either male or female).
     """
     name_parts = name.split()
-    filtered_names = [part for part in name_parts if part in all_names]
+    filtered_names = [
+        name for name in name_parts 
+        if name in all_names 
+    ]
     return ' '.join(filtered_names)
 
 def keep_first_name(name: str) -> str:

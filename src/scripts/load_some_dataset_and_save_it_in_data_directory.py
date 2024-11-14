@@ -36,11 +36,17 @@ deleted_names = character_df[df_character_filtered['Character_name']==values_fil
 
 # Let's put the kept names together
 kept_names = df_character_filtered[df_character_filtered['Character_name']!=values_filtered.index[0]]
+print('Number of names kept:', kept_names.shape[0])
 
 # We want to save back the names that were first considered as common names
-deleted_names_filtered = deleted_names.copy()
-deleted_names_filtered['Character_name']=deleted_names_filtered['Character_name'].apply(keep_names)
-saved_names = deleted_names_filtered[deleted_names_filtered['Character_name']!='']
+deleted_names_saved = deleted_names.copy()
+deleted_names_saved['Character_name']=deleted_names_saved['Character_name'].apply(keep_names)
+
+values_saved = deleted_names_saved['Character_name'].value_counts()
+print('Number of names saved:', deleted_names_saved.shape[0])
+print(values_saved)
+saved_names = deleted_names_saved[deleted_names_saved['Character_name']!=values_saved.index[0]]
+print('Number of names saved back:', saved_names.shape[0])
 
 # Concatenate the kept names and the saved names
 kept_names = pd.concat([kept_names, saved_names])
@@ -49,5 +55,6 @@ kept_names['Character_name'] = kept_names['Character_name'].apply(keep_first_nam
 # Now, let's merge with the movies dataframe
 
 df_char_cleaned = pd.merge(movies_df,kept_names, on="Wikipedia_ID",how="inner")[['Wikipedia_ID','Name','Languages','Country','Genres','Character_name','Sex','Actor_age']]
+print('Number of rows in the cleaned dataframe:', df_char_cleaned.shape[0])
 
 df_char_cleaned.to_csv('data/cleaned.csv', index=False)
