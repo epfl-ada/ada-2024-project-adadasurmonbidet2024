@@ -22,14 +22,11 @@ def calculate_column_freq(df, column_name='Character_name'):
     """
     Calculate the count and frequency (percentage) of unique values in a specified column.
     """
-    # Calculating the total number of entries in the specified column
     total_entries = df[column_name].count()
     
-    # Counting occurrences of each unique value
     counts_df = df[column_name].value_counts().reset_index()
     counts_df.columns = [column_name, 'Count']
     
-    # Adding a frequency column with the count divided by the total number of names, expressed as a percentage
     counts_df['Frequency (%)'] = counts_df['Count'] / total_entries * 100
     
     return counts_df
@@ -102,7 +99,7 @@ def get_top_names_by_genre(phonetic_df, nb_of_names, genres = genres_list):
     top_male_names_by_genre = {}
     top_female_names_by_genre = {}
 
-    # Loop through each genre and get top names for males and females
+    # We loop through each genre to get top names for males and females
     for genre in genres:
         male_genre_names = df_male[df_male['Genre_Category'].apply(lambda categories: genre in categories)]
 
@@ -114,18 +111,13 @@ def get_top_names_by_genre(phonetic_df, nb_of_names, genres = genres_list):
         top_female_names = female_genre_names['Character_name'].value_counts().head(nb_of_names).index.tolist()
         top_female_names_by_genre[genre] = top_female_names
     
-    # Convert dictionaries to DataFrames with each genre as a column
     frequent_names_m = pd.DataFrame.from_dict(top_male_names_by_genre, orient='index').transpose()
     frequent_names_f = pd.DataFrame.from_dict(top_female_names_by_genre, orient='index').transpose()
 
     return frequent_names_m, frequent_names_f
 
 def create_sunburst_data(frequent_names_f):
-
-     # Création d'un dictionnaire pour stocker les résultats
     sunburst_data = []
-
-    # Ajouter la racine "Film" comme parent
     sunburst_data.append({
         'character': 'Film',
         'parent': '',
@@ -134,10 +126,9 @@ def create_sunburst_data(frequent_names_f):
     for genre in frequent_names_f.columns:
         sunburst_data.append({
             'character': genre,
-            'parent': 'Film',  # Film comme parent
+            'parent': 'Film', 
         })
 
-    # Transformation des données : chaque genre comme parent, prénoms comme enfants
     for genre in frequent_names_f.columns:
         for idx, prenom in enumerate(frequent_names_f[genre]):
             sunburst_data.append({
@@ -145,10 +136,7 @@ def create_sunburst_data(frequent_names_f):
                 'parent': genre,  # Genre comme parent
             })
 
-    # Convertir en DataFrame pour plus de lisibilité (optionnel)
     sunburst_df = pd.DataFrame(sunburst_data)
-
-    # Transformer en dictionnaire
     data = {
         'character': sunburst_df['character'].tolist(),
         'parent': sunburst_df['parent'].tolist(),
@@ -158,14 +146,11 @@ def create_sunburst_data(frequent_names_f):
 
 
 def count_name_appearance_by_genre(df, genres=genres_list, name='Tom'):
-    # Filter the DataFrame for the specified name
     df_name = df[df['Character_name'] == name]
 
-    # Initialize genre counts dictionary
     genre_counts = {genre: 0 for genre in genres}
 
-    # Count occurrences by genre
-    for _, row in df_name.iterrows():
+    for _, row in df_name.iterrows(): # Count ocurrences by genre
         row_genres = row['Genre_Category']
         if isinstance(row_genres, list):
             for genre in row_genres:
@@ -175,7 +160,6 @@ def count_name_appearance_by_genre(df, genres=genres_list, name='Tom'):
             if row_genres in genre_counts:
                 genre_counts[row_genres] += 1
 
-    # Convert genre counts to DataFrame
     genre_counts_df = pd.DataFrame([genre_counts])
 
     return genre_counts_df, df_name
@@ -212,26 +196,20 @@ def get_vowel_percentage(df_char_cleaned:pd.DataFrame):
 
 def create_letter_count_df(df, letter_position):
 
-    # Create a copy of the DataFrame and add a column for the selected letter position
     df_letter = df.copy()
     df_letter['letter'] = df_letter['Character_name'].apply(lambda name: name[letter_position].lower())
     
-    # Count occurrences of letters by sex
     letter_counts_H = df_letter[df_letter['Sex'] == 'M']['letter'].value_counts()
     letter_counts_F = df_letter[df_letter['Sex'] == 'F']['letter'].value_counts()
 
-    # Convert counts to percentages
     male_count = df_letter[df_letter['Sex'] == 'M'].shape[0]
     female_count = df_letter[df_letter['Sex'] == 'F'].shape[0]
     letter_counts_H_percentage = letter_counts_H / male_count*100
     letter_counts_F_percentage = letter_counts_F / female_count*100
-
-    # Combine the two series
     letter_counts = pd.concat([letter_counts_H_percentage, letter_counts_F_percentage], axis=1)
     letter_counts.columns = ['letter_men', 'letter_women']
     letter_counts = letter_counts.head(26)  # Limit to top 26 letters
 
-    # Calculate top names for each letter by sex
     top_letter_names = (
         df_letter.groupby(['letter', 'Sex'])['Character_name']
         .apply(lambda x: x.value_counts().head(3).index.tolist())
@@ -281,29 +259,23 @@ def plot_letter_name_percentage(df, letter_position):
     fig.show()
 
 def plot_age_sex_distribution_with_top_names(df_char_cleaned: pd.DataFrame):
-    # Define age bins and labels
     age_bins = [0, 12, 17, 24, 34, 44, 54, 64, 74, 84, 100]
     age_labels = [
         '<12y', '13y-17y', '18y-24y', '25y-34y', '35y-44y', 
         '45y-54y', '55y-64y', '65y-74y', '75y-84y', '>85y'
     ]
 
-    # Add age categories to the DataFrame
     df_char_cleaned['age_category'] = pd.cut(df_char_cleaned['Actor_age'], bins=age_bins, labels=age_labels, right=False)
-
-    # Calculate the age and sex counts and percentages
     age_sex_counts = df_char_cleaned.groupby(['age_category', 'Sex']).size().unstack(fill_value=0)
     total_counts = df_char_cleaned['Sex'].value_counts()
     age_sex_percentage = age_sex_counts.div(total_counts, axis=1) * 100
 
-    # Find the top 3 names for each age category and gender
+    # We find the top 3 names for each age category and gender
     top_names = (
         df_char_cleaned.groupby(['age_category', 'Sex'])['Character_name']
         .apply(lambda x: x.value_counts().head(3).index.tolist())
         .unstack(fill_value=[])
     )
-
-    # Create the plot
     fig = go.Figure()
 
     for sex in ['M', 'F']:
@@ -315,8 +287,6 @@ def plot_age_sex_distribution_with_top_names(df_char_cleaned: pd.DataFrame):
             hovertext=[f"Top names: {', '.join(top_names.loc[age, sex])}" for age in age_labels],
             hoverinfo="text"
         ))
-
-    # Update layout for readability
     fig.update_layout(
         title='Percentage of Males and Females in Each Age Category',
         xaxis_title='Age Category',
@@ -333,7 +303,7 @@ def plot_age_sex_distribution_with_top_names(df_char_cleaned: pd.DataFrame):
 
 def country_to_continent(country_name:str, countries_code:list[str]):
     try:
-        # Get the alpha-2 country code
+        # Get the alpha-2 and alpha-3 country code
         country_code_alpha2 = pycountry.countries.lookup(country_name).alpha_2
         country_code_alpha3 = pycountry.countries.lookup(country_name).alpha_3
         if country_code_alpha3 not in countries_code:
@@ -388,13 +358,13 @@ def add_movie_count(df_char_cleaned:pd.DataFrame, df_top_names:pd.DataFrame)->No
 
 def cleaning_non_countries(df_top_names:pd.DataFrame)->pd.DataFrame:
 
-    #For the United Kingdom ['England','Wales','Northern Ireland','Kingdom of Great Britain']
+    #For the United Kingdom
     df_top_names = df_top_names[df_top_names['primary_country'] != 'England']
     df_top_names = df_top_names[df_top_names['primary_country'] != 'Wales']
     df_top_names = df_top_names[df_top_names['primary_country'] != 'Northern Ireland']
     df_top_names = df_top_names[df_top_names['primary_country'] != 'Kingdom of Great Britain']
 
-    #For Germany ['Weimar Republic','West Germany','German Democratic Republic']
+    #For Germany
     df_top_names = df_top_names[df_top_names['primary_country'] != 'Weimar Republic']
     df_top_names = df_top_names[df_top_names['primary_country'] != 'West Germany']
     df_top_names = df_top_names[df_top_names['primary_country'] != 'German Democratic Republic']
