@@ -5,7 +5,8 @@ Script containing functions used in data cleaning processes.
 import json
 import pandas as pd
 import nltk
-from nltk.corpus import words, names
+from nltk.corpus import names
+from nltk.corpus import words
 
 # Download the necessary nltk datasets (only needed once)
 nltk.download('words')
@@ -44,16 +45,14 @@ def remove_nan_rows(df: pd.DataFrame, column: str) -> pd.DataFrame:
     """
     return df.dropna(subset=[column])
 
-def filter_non_english_names(name: str) -> str:
-    """
-    Filter out non-English words from a name based on predefined criteria.
-    """
+def filter_non_english_names(name):
     words_in_name = name.split()
+
     filtered_words = [
-        word for word in words_in_name
-        if word.lower() not in english_words
+        word for word in words_in_name 
+        if word.lower() not in english_words 
         and word.lower() not in invalid_word_list
-        and not any(char in invalid_chars for char in word)
+        and all(char not in word for char in invalid_chars) 
         and any(char in vowels for char in word.lower())
         and sum(1 for char in word if char.isupper()) <= 1
     ]
