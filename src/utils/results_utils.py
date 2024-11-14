@@ -279,4 +279,3 @@ def create_df_country(df_char_cleaned:pd.DataFrame,pca_result:pd.DataFrame):
     df_country['pca_two'] = pca_result[:, 1]
     df_country['pca_three'] = pca_result[:, 2]
     return df_country
-
