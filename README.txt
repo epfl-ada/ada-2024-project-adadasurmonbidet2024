@@ -2,7 +2,7 @@ ADAdasurmonbidet2024 - DISCOVER CHARACTERS' FEATURES BASED ON FIRST NAME
 
 Project Ideas:
 In film storytelling, a character’s name is rarely just a label; it often serves as a subtle cue to their personality and role in the movie. Our project tackles the intriguing question: "Can a character’s archetype be predicted from their name?" Through this data analysis project, we aim to decode connections between specific name characteristics — such as length, structure, cultural origin, and phonetics — and traits including gender, narrative role, movie genre-specific role, and additional properties that we expect to uncover through deeper analysis. A sentiment analysis will also allow us to explore whether these name characteristics evoke positive or negative associations, potentially correlating with archetypes such as hero, villain, or more nuanced characters, if time permits.
-![Names' Features](images/Image_data.png)
+![Names' Features](data/Image/Image_data.png)
 
 Research Questions:
 - What are the key predictors of character traits based on first names?
