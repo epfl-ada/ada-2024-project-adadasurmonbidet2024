@@ -199,10 +199,10 @@ def country_to_continent(country_name:str, countries_code:list[str]):
 
 
 
-def create_continent_df(df_char_cleaned:pd.DataFrame)->pd.DataFrame:
+def create_continent_df(df_char_cleaned:pd.DataFrame,countries_code:list[str])->pd.DataFrame:
 
     df_char_cleaned['primary_country'] = df_char_cleaned['Country'].str[0]
-    df_char_cleaned['Continent'] = df_char_cleaned['primary_country'].apply(country_to_continent)
+    df_char_cleaned['Continent'] = df_char_cleaned['primary_country'].apply(lambda x: country_to_continent(x, countries_code=countries_code))
 
     continents = df_char_cleaned.groupby(['Continent','Sex'])['Character_name'].agg(pd.Series.mode)
     df_continents = continents.to_frame().reset_index()
