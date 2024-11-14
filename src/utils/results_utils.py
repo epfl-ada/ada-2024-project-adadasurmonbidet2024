@@ -198,8 +198,8 @@ def create_boxenplot_by_sex(data: pd.DataFrame):
 
     fig = sns.boxenplot(data, x='Sex', y='name_length')
     fig.set_xlabel('Gender')
-    fig.set_ylabel('Letter count')
-    fig.set_title('Letter Count per Gender')
+    fig.set_ylabel('Name Length')
+    fig.set_title('Name Length per Gender')
 
 def get_vowel_percentage(df_char_cleaned:pd.DataFrame):
     df_char_cleaned['vowel_percentage'] = df_char_cleaned['vowel_count'] / df_char_cleaned['name_length']
