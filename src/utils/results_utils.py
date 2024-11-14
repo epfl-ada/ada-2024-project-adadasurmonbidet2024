@@ -14,6 +14,7 @@ from sklearn.feature_selection import VarianceThreshold
 import plotly.graph_objects as go
 import pycountry
 import pycountry_convert as pc
+import seaborn as sns
 
 
 ############## Data presentation ####################
@@ -157,26 +158,26 @@ def create_sunburst_data(frequent_names_f):
     return data
 
 
-def count_name_appearance_by_genre(df, genres=genres_list, name='Tom'):
-    # Filter the DataFrame for the specified name
-    df_name = df[df['Character_name'] == name]
+def count_name_appearance_by_genre(df, genres=genres_list, name_substring='Luca'):
+    df_name = df[df['Character_name'].str.lower().str.startswith(name_substring.lower(), na=False)]
 
-    # Initialize genre counts dictionary
-    genre_counts = {genre: 0 for genre in genres}
+    df_exploded = df_name.explode('Genre_Category')
 
-    # Count occurrences by genre
-    for _, row in df_name.iterrows():
-        row_genres = row['Genre_Category']
-        if isinstance(row_genres, list):
-            for genre in row_genres:
-                if genre in genre_counts:
-                    genre_counts[genre] += 1
-        else:
-            if row_genres in genre_counts:
-                genre_counts[row_genres] += 1
+    df_exploded = df_exploded[df_exploded['Genre_Category'].isin(genres)]
 
-    # Convert genre counts to DataFrame
-    genre_counts_df = pd.DataFrame([genre_counts])
+    genre_counts = (
+        df_exploded.groupby('Genre_Category')['Wikipedia_ID']
+        .nunique()
+        .reindex(genres, fill_value=0)
+    )
+
+    total_count = df_exploded['Wikipedia_ID'].nunique()
+ 
+    genre_counts_df = genre_counts.reset_index().rename(columns={'Wikipedia_ID': 'Count'})
+    genre_counts_df = pd.concat([genre_counts_df, pd.DataFrame({'Genre_Category': ['Total different movies'], 'Count': [total_count]})], ignore_index=True)
+
+    genre_counts_transposed = genre_counts_df.set_index('Genre_Category').T.reset_index(drop=True)
+    genre_counts_transposed.columns.name = None
 
     return genre_counts_df, df_name
 
@@ -203,6 +204,14 @@ def get_length_stats(df_char_cleaned:pd.DataFrame):
     stats_length = df_char_cleaned.groupby('Sex')['name_length'].agg(['mean', 'std'])
 
     return stats_length
+
+def create_boxenplot_by_sex(data: pd.DataFrame):
+    data['name_length'] = data['Character_name'].apply(lambda name: len(name))
+
+    fig = sns.boxenplot(data, x='Sex', y='name_length')
+    fig.set_xlabel('Gender')
+    fig.set_ylabel('Letter count')
+    fig.set_title('Letter Count per Gender')
 
 def get_vowel_percentage(df_char_cleaned:pd.DataFrame):
     df_char_cleaned['vowel_percentage'] = df_char_cleaned['vowel_count'] / df_char_cleaned['name_length']
@@ -281,29 +290,25 @@ def plot_letter_name_percentage(df, letter_position):
     fig.show()
 
 def plot_age_sex_distribution_with_top_names(df_char_cleaned: pd.DataFrame):
-    # Define age bins and labels
+
     age_bins = [0, 12, 17, 24, 34, 44, 54, 64, 74, 84, 100]
     age_labels = [
         '<12y', '13y-17y', '18y-24y', '25y-34y', '35y-44y', 
         '45y-54y', '55y-64y', '65y-74y', '75y-84y', '>85y'
     ]
 
-    # Add age categories to the DataFrame
     df_char_cleaned['age_category'] = pd.cut(df_char_cleaned['Actor_age'], bins=age_bins, labels=age_labels, right=False)
 
-    # Calculate the age and sex counts and percentages
-    age_sex_counts = df_char_cleaned.groupby(['age_category', 'Sex']).size().unstack(fill_value=0)
+    age_sex_counts = df_char_cleaned.groupby(['age_category', 'Sex'], observed= True).size().unstack(fill_value=0)
     total_counts = df_char_cleaned['Sex'].value_counts()
     age_sex_percentage = age_sex_counts.div(total_counts, axis=1) * 100
 
-    # Find the top 3 names for each age category and gender
     top_names = (
-        df_char_cleaned.groupby(['age_category', 'Sex'])['Character_name']
+        df_char_cleaned.groupby(['age_category', 'Sex'], observed= True)['Character_name']
         .apply(lambda x: x.value_counts().head(3).index.tolist())
         .unstack(fill_value=[])
     )
 
-    # Create the plot
     fig = go.Figure()
 
     for sex in ['M', 'F']:
