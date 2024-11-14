@@ -14,6 +14,26 @@ from sklearn.feature_selection import VarianceThreshold
 import pycountry
 import pycountry_convert as pc
 
+
+############## Data presentation ####################
+
+def calculate_column_freq(df, column_name='Character_name'):
+    """
+    Calculate the count and frequency (percentage) of unique values in a specified column.
+    """
+    # Calculating the total number of entries in the specified column
+    total_entries = df[column_name].count()
+    
+    # Counting occurrences of each unique value
+    counts_df = df[column_name].value_counts().reset_index()
+    counts_df.columns = [column_name, 'Count']
+    
+    # Adding a frequency column with the count divided by the total number of names, expressed as a percentage
+    counts_df['Frequency (%)'] = counts_df['Count'] / total_entries * 100
+    
+    return counts_df
+
+
 ##############  Genre Analysis ####################
 
 genres_list = ['Action & Adventure', 'Drama', 'Comedy', 'Horror & Thriller', 
