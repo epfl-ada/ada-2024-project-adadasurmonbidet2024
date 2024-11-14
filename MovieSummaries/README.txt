@@ -1,79 +1,59 @@
-This README describes data in the CMU Movie Summary Corpus, a collection of 42,306 movie plot summaries and metadata at both the movie level (including box office revenues, genre and date of release) and character level (including gender and estimated age).  This data supports work in the following paper:
+# ADAdasurmonbidet2024 - DISCOVER CHARACTERS' FEATURES BASED ON FIRST NAME
 
-David Bamman, Brendan O'Connor and Noah Smith, "Learning Latent Personas of Film Characters," in: Proceedings of the Annual Meeting of the Association for Computational Linguistics (ACL 2013), Sofia, Bulgaria, August 2013.
+### Project Ideas
+In film storytelling, a character’s name is rarely just a label; it often serves as a subtle cue to their personality and role in the movie. Our project tackles the intriguing question: **“Can a character’s archetype be predicted from their name?”** Through this data analysis project, we aim to decode connections between specific name characteristics — such as length, structure, cultural origin, and phonetics — and traits including gender, narrative role, movie genre-specific role, and additional properties that we expect to uncover through deeper analysis. A sentiment analysis will also allow us to explore whether these name characteristics evoke positive or negative associations, potentially correlating with archetypes such as hero, villain, or more nuanced characters, if time permits.
 
-All data is released under a Creative Commons Attribution-ShareAlike License. For questions or comments, please contact David Bamman (dbamman@cs.cmu.edu).
+![Names' Features](MovieSummaries/Image_data.png)
 
-###
-#
-# DATA
-#
-###
+### Research Questions
+- What are the key predictors of character traits based on first names?
+- Can the number of vowels, consonants, or specific sounds in a name correlate with the character’s role (e.g., hero, villain)?
+- How do the length and structure of a character’s first name correlate with their role in the narrative? Do longer or more complex names correspond to more prominent or villainous roles in films?
+- Can sentiment analysis of names offer insights into character traits?
+- Do films produced in specific regions tend to use names that align with the cultural background of the characters? For example, do American films predominantly feature Anglo-Saxon names for protagonists and villainous roles?
 
-1. plot_summaries.txt.gz [29 M] 
+### Additional Dataset
+We propose integrating a dataset that associates each first name with its ethnicity, which would allow us to make the ethnic origin of the names one of the main characteristics in our analysis. This would enable us to, for example, explore the relationship between the origin of a name and the location where the films are produced. The dataset we have identified, “Name Ethnicity,” is available on Kaggle.
 
-Plot summaries of 42,306 movies extracted from the November 2, 2012 dump of English-language Wikipedia.  Each line contains the Wikipedia movie ID (which indexes into movie.metadata.tsv) followed by the summary.
+### Project Plans and Methods
 
+#### Step 1: Data Exploration
+We began with data cleaning, removing irrelevant columns and rows, particularly those missing character names. For preprocessing, we isolated first names by:
+- Stripping out prefixes (e.g., “Dr. Alison Parker” becomes “Alison”)
+- Removing generic terms like “girlfriend”
+- Keeping only the first name from full names (e.g., “Amélie” from “Amélie Poulain”)
 
-2. corenlp_plot_summaries.tar.gz [628 M, separate download]
+The cleaned data was saved in a CSV file for streamlined analysis.
 
-The plot summaries from above, run through the Stanford CoreNLP pipeline (tagging, parsing, NER and coref). Each filename begins with the Wikipedia movie ID (which indexes into movie.metadata.tsv).
+#### Step 2: Feature Extraction for Name Analysis
+In this step, we examined the characteristics of first names to lay the foundation for the rest of our analysis. We extracted several specific traits of the names:
+- Length (using Python’s `len()` function)
+- Structure (vowel and consonant count using pandas)
+- First and last letters
 
+Next, we will merge the cultural origin dataset and apply phonetic analysis using algorithms like Soundex or Metaphone to explore pronunciation patterns and trends related to names.
 
-###
-#
-# METADATA
-#
-###
+#### Step 3: Understanding the Data
+To better understand the relationships between character names and their traits, we started by exploring the data to identify patterns and formulate hypotheses. Our goal is to uncover trends related to gender, age, movie genres, character importance, ethnicity, and the phonetic characteristics of names.
 
-3. movie.metadata.tsv.gz [3.4 M]
+#### Step 4: Study of Correlations Between Name Characteristics and Character Features
+We focus on identifying key correlations in the data, especially phonetic patterns linked to factors like gender, movie genre, age, and ethnicity. We will examine whether certain sounds are tied to specific genres or character roles and explore the influence of filming locations on name origins.
 
+#### Step 5: Sentiment Analysis
+The goal is to analyze the connotations of character names and how they are linked to character traits. We will conduct sentiment analysis on sentences featuring these names, identifying structures and adjectives to determine if the names have positive, negative, or neutral connotations. Phonetic analysis will further explore whether phonetic traits (like name length or consonant count) correlate with specific roles, such as villains.
 
-Metadata for 81,741 movies, extracted from the Noverber 4, 2012 dump of Freebase.  Tab-separated; columns:
+#### Step 6: Predictive Model & Generative List of Heroes/Villains
+Our aim is to develop a “Character ID” model that predicts the most likely characteristics of a movie character based on their first name. The model would generate a character profile, including attributes such as age, ethnicity, gender, and whether the character is a villain or hero. Additionally, we plan to generate a list of first names most commonly associated with villains or heroes in films.
 
-1. Wikipedia movie ID
-2. Freebase movie ID
-3. Movie name
-4. Movie release date
-5. Movie box office revenue
-6. Movie runtime
-7. Movie languages (Freebase ID:name tuples)
-8. Movie countries (Freebase ID:name tuples)
-9. Movie genres (Freebase ID:name tuples)
+#### Step 7: Create Data Story
+We will summarize and visualize our findings in an engaging narrative, presenting the insights gained from the analysis.
 
+### Organisation:
+COMPLETER
 
-
-4. character.metadata.tsv.gz [14 M]
-
-Metadata for 450,669 characters aligned to the movies above, extracted from the Noverber 4, 2012 dump of Freebase.  Tab-separated; columns:
-
-1. Wikipedia movie ID
-2. Freebase movie ID
-3. Movie release date
-4. Character name
-5. Actor date of birth
-6. Actor gender
-7. Actor height (in meters)
-8. Actor ethnicity (Freebase ID)
-9. Actor name
-10. Actor age at movie release
-11. Freebase character/actor map ID
-12. Freebase character ID
-13. Freebase actor ID
-
-
-##
-#
-# TEST DATA
-#
-##
-
-tvtropes.clusters.txt
-
-72 character types drawn from tvtropes.com, along with 501 instances of those types.  The ID field indexes into the Freebase character/actor map ID in character.metadata.tsv.
-
-name.clusters.txt
-
-
-970 unique character names used in at least two different movies, along with 2,666 instances of those types.  The ID field indexes into the Freebase character/actor map ID in character.metadata.tsv.
-
+### Proposed Timeline
+- **22.11.2023**: Step 1 to 3
+- **29.11.2024**: Homework 2
+- **13/12/2023**: Step 4 to 5
+- **18.12.2023**: Step 6 to 7
+- **20.12.2023**: Deadline Milestone 3
