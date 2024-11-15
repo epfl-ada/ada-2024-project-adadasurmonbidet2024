@@ -33,8 +33,10 @@ In this step, we examined the name characteristics to devide the genders for the
 - Length (using Python’s `len()` function)
 - Structure (vowel and consonant count using `pandas`, first and last letters)
 
-** For P3 : **
-Next, we will merge the "Name Ethnicity" dataset and apply phonetic analysis using algorithms like Soundex or Metaphone to explore pronunciation patterns and trends related to names.
+** For P3 : ** 
+- Ethnicity
+- Phonetics
+We will merge the "Name Ethnicity" dataset and apply phonetic analysis using algorithms like Soundex or Metaphone to explore pronunciation patterns and trends related to names.
 
 ### Step 3: Understanding the Data
 To better understand the relationships between character names and movies, we started by looking at the data to identify patterns and formulate hypotheses. Our goal was to find trends in character features, such as the distribution of names across different movie genres.
