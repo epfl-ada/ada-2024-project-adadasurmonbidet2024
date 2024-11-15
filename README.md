@@ -18,24 +18,27 @@ We propose integrating a dataset that associates each first name with its ethnic
 ## Project Plans and Methods
 
 ### Step 0: Data Exploration
-We began with data cleaning, removing irrelevant columns and rows, particularly those missing character names. For preprocessing, we isolated first names by:
+We began with data cleaning, removing irrelevant columns and rows, particularly those missing the character name. For preprocessing, we isolated first names by:
 - Stripping out prefixes (e.g., “Dr. Alison Parker” becomes “Alison Parker”)
 - Eliminate commun names like “taxi” or “waiter” using `nltk.corpus.words`. 
 - From the filtered data, restore words identified as valid names using the `nltk.corpus.names` library, which provides a list of English names. 
-- Keeping only the first name from full names (e.g., “Amélie” from “Amélie Poulain”)
+- Keeping only the first name from full names (e.g., “Alison” from “Alison Parker")
 
-The cleaned data was saved in a CSV file for streamlined analysis.
+The cleaned data was saved in the `cleaned.csv` file for streamlined analysis.
 
 ### Step 1: Present globally the data
 
 ### Step 2: Feature Extraction for Name Analysis
-In this step, we examined the name characteristics to devide the genders for the rest of our analysis. We extracted several characteristics of the names :
-- Length (using Python’s `len()` function)
-- Structure (vowel and consonant count using `pandas`, first and last letters)
+We examined the name characteristics by gender to justify the division of male and female for the rest of the analysis. We analysed several characteristics of the names :
+- Length : using Python’s `len()` function
+- Structure : 
+    - first and last letters
+    - vowel and consonant count using `pandas`
+    - n-gram (first test, will be done for P3)
+- Phonetics (P3)
 
-** For P3 : ** 
-- Ethnicity
-- Phonetics
+**For P3 :** We're will be added (using an external dataset): Origin. To justify the
+
 We will merge the "Name Ethnicity" dataset and apply phonetic analysis using algorithms like Soundex or Metaphone to explore pronunciation patterns and trends related to names.
 
 ### Step 3: Understanding the Data
