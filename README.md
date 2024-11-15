@@ -24,7 +24,7 @@ We began with data cleaning, removing irrelevant columns and rows, particularly 
 - From the filtered data, restore words identified as valid names using the `nltk.corpus.names` library, which provides a list of English names. 
 - Keeping only the first name from full names (e.g., “Alison” from “Alison Parker")
 
-The cleaned data was saved in th `cleaned.csv` file for streamlined analysis.
+The cleaned data was saved in the `cleaned.csv` file for streamlined analysis.
 
 ### Step 1: Present globally the data
 
@@ -33,7 +33,7 @@ We examined the name characteristics to devide the genders for the rest of our a
 - Length (using Python’s `len()` function)
 - Structure (vowel and consonant count using `pandas`, first and last letters)
 
-** For P3 : ** These name characteristics will be added so we can
+**For P3 :** These name characteristics will be added so we can
 - Ethnicity
 - Phonetics
 We will merge the "Name Ethnicity" dataset and apply phonetic analysis using algorithms like Soundex or Metaphone to explore pronunciation patterns and trends related to names.
