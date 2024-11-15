@@ -16,6 +16,8 @@ import pycountry
 import pycountry_convert as pc
 import seaborn as sns
 
+import gzip
+import xml.etree.ElementTree as Xet
 
 ############## Data presentation ####################
 
@@ -428,43 +430,87 @@ def cleaning_non_countries(df_top_names:pd.DataFrame)->pd.DataFrame:
     df_top_names.groupby('primary_country', as_index=False).agg({'Number_of_movies': 'sum', 'Female_name': 'first','Male_name': 'first'}))
     return df_top_names
 
+### ---------- Sentimental Analysis ---------------------
 
+def parse_xml_gz(xml_gz_file):
+    with gzip.open(xml_gz_file, 'rt', encoding='utf-8') as f:
 
+        tree = Xet.parse(f)
+        root = tree.getroot()
 
-### ---------- NGram Analysis ---------------------
+        sentences_data = []
+        coreferences_data = []
+        
+        for sentence in root.findall(".//sentence"):
+            sentence_text = " ".join(token.find("word").text for token in sentence.findall(".//token"))
+            sentence_data = {
+                "sentence_id": sentence.get("id"),
+                "sentence_text": sentence_text,
+                "tokens": [{
+                    "word": token.find("word").text,
+                    "lemma": token.find("lemma").text,
+                    "POS": token.find("POS").text,
+                    "NER": token.find("NER").text
+                } for token in sentence.findall(".//token")]
+            }
 
-'''def top_genre_search(genres:list[str]):
-    for genre in genres:
-        if genre in top_genres:
-            return genre         
-    return 'other'
+            dependencies = []
+            for dep in sentence.findall(".//basic-dependencies/dep"):
+                dep_type = dep.get("type")
+                governor_idx = dep.find("governor").text
+                dependent_idx = dep.find("dependent").text
+                dependencies.append({
+                    "dep_type": dep_type,
+                    "governor": governor_idx,
+                    "dependent": dependent_idx
+                })
+            sentence_data["dependencies"] = dependencies
 
-### ---------- N-gram Analysis ---------------------
+            sentences_data.append(sentence_data)
 
-def create_ngram(df_char_cleaned:pd.DataFrame):
-    vectorizer = CountVectorizer(analyzer='char', ngram_range=(2, 3))
-    char_ngrams = vectorizer.fit_transform(df_char_cleaned['Character_name'])
-    ngram_df = pd.DataFrame(char_ngrams.toarray(), columns=vectorizer.get_feature_names_out())
-    ngram_df = ngram_df.astype('float32') # converting to float32 to decrease the computing time
+        coreferences = []
+        for coref_chain in root.findall(".//coreference"):
+            coref_chain_data = []
+            for mention in coref_chain.findall("mention"):
+                coref_data = {
+                    "representative": mention.get("representative") == "true",
+                    "sentence_id": mention.find("sentence").text,
+                    "start": int(mention.find("start").text),
+                    "end": int(mention.find("end").text),
+                    "head": int(mention.find("head").text)
+                }
+                coref_chain_data.append(coref_data)
+            coreferences.append(coref_chain_data)
 
-    return ngram_df
+    return {"sentences_data": sentences_data, "coreferences": coreferences}
 
-def kmeans_clustering(ngram_df:pd.DataFrame,df_char_cleaned:pd.DataFrame):
-    kmeans = MiniBatchKMeans(n_clusters=4, batch_size=1000, random_state=42) 
-    df_char_cleaned['cluster'] = kmeans.fit_predict(ngram_df)
+def filter_sentences_by_character(character_name, sentences_data, coreferences_data):
+    character_sentences = []
 
-def ipca_reduction(ngram_df:pd.DataFrame):
-    ipca = IncrementalPCA(n_components=3, batch_size=500)
-    pca_result = ipca.fit_transform(ngram_df)
-    loadings = pd.DataFrame(ipca.components_.T, columns=[f'PC{i+1}' for i in range(ipca.n_components_)], index=ngram_df.columns)
-    loadings['PC1']=loadings['PC1'].apply(abs)
+    for sentence_data in sentences_data:
+        if character_name.lower() in sentence_data["sentence_text"].lower():
+            character_sentences.append(sentence_data["sentence_text"])
 
-    return pca_result,loadings
+    for coref_chain in coreferences_data:
+        representative_mention = next((m for m in coref_chain if m["representative"]), None)
+        if representative_mention:
+            sentence_id = representative_mention["sentence_id"]
+            sentence_text = next(
+                (s["sentence_text"] for s in sentences_data if s["sentence_id"] == sentence_id),
+                None
+            )
+            if sentence_text and character_name.lower() in sentence_text.lower():
+                for mention in coref_chain:
+                    sentence_data = next(
+                        (s for s in sentences_data if s["sentence_id"] == mention["sentence_id"]),
+                        None
+                    )
+                    if sentence_data:
+                        character_sentences.append(sentence_data["sentence_text"])
+                        
+    character_sentences = list(set(character_sentences))
 
-def create_df_country(df_char_cleaned:pd.DataFrame,pca_result:pd.DataFrame):
-    df_country = df_char_cleaned.copy()
-    df_country['pca_one'] = pca_result[:, 0]
-    df_country['pca_two'] = pca_result[:, 1]
-    df_country['pca_three'] = pca_result[:, 2]
-    return df_country
-    '''
+    df = pd.DataFrame({
+        "character_sentences": character_sentences
+    })
+    return df
