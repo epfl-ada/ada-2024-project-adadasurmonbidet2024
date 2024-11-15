@@ -381,6 +381,7 @@ def cleaning_non_countries(df_top_names:pd.DataFrame)->pd.DataFrame:
     df_top_names = df_top_names[df_top_names['primary_country'] != 'Weimar Republic']
     df_top_names = df_top_names[df_top_names['primary_country'] != 'West Germany']
     df_top_names = df_top_names[df_top_names['primary_country'] != 'German Democratic Republic']
+    df_top_names = df_top_names[df_top_names['primary_country'] != 'Nazi Germany']
 
     #For Russia
     df_top_names['primary_country'] = df_top_names['primary_country'].replace('Soviet Union','Russia')
