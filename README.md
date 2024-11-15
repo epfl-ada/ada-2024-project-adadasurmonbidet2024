@@ -1,7 +1,7 @@
 # ADAdasurmonbidet2024 - DISCOVER CHARACTERS' FEATURES BASED ON FIRST NAME
 
 ## Project Ideas
-In film storytelling, a character’s name is rarely just a label; it often serves as a subtle cue to their personality and role in the movie. Our project tackles the intriguing question: **"Can a character’s archetype be predicted from their name?"** Through this data analysis project, we aim to decode connections between specific name characteristics — such as length, structure, cultural origin, and phonetics — and traits including gender, narrative role, movie genre-specific role, and additional properties that we expect to uncover through deeper analysis. A sentiment analysis will also allow us to explore whether these name characteristics evoke positive or negative associations, potentially correlating with archetypes such as hero, villain, or more nuanced characters, if time permits.
+In film storytelling, a character’s name is rarely just a label; it often serves as a subtle cue to their personality and role in the movie. Our project tackles the intriguing question: **"Can a character’s archetype be predicted from their name?"** Through this data analysis project, we aim to decode connections between specific name characteristics — such as length, structure, cultural origin, and phonetics — and features including gender, narrative role, movie genre-specific role, and additional properties that we expect to uncover through deeper analysis. A sentiment analysis will also allow us to explore whether these name characteristics and features evoke positive or negative associations, potentially correlating with archetypes such as hero, villain, or more nuanced characters, if time permits.
 
 ![Names' Features](data/Image/Image_data.png)
 
@@ -13,31 +13,32 @@ In film storytelling, a character’s name is rarely just a label; it often serv
 - Do films produced in specific regions tend to use names that align with the cultural background of the characters? For example, do American films predominantly feature Anglo-Saxon names for protagonists and villainous roles?
 
 ## Additional Dataset
-We propose integrating a dataset that associates each first name with its ethnicity, which would allow us to make the ethnic origin of the names one of the main characteristics in our analysis. This would enable us to, for example, explore the relationship between the origin of a name and the location where the films are produced. The dataset we have identified, "Name Ethnicity," is available on Kaggle.
+We propose integrating a dataset that associates each first name with its ethnicity, which would allow us to make the ethnic origin of the names one of the characteristics of our analysis. This would enable us to, for example, explore the relationship between the origin of a name and the location where the films are produced. The dataset we have identified, "Name Ethnicity," is available on Kaggle.
 
 ## Project Plans and Methods
 
 ### Step 1: Data Exploration
 We began with data cleaning, removing irrelevant columns and rows, particularly those missing character names. For preprocessing, we isolated first names by:
-- Stripping out prefixes (e.g., “Dr. Alison Parker” becomes “Alison”)
-- Removing generic terms like “girlfriend”
+- Stripping out prefixes (e.g., “Dr. Alison Parker” becomes “Alison Parker”)
+- Eliminate commun names like “taxi” or “waiter” using `nltk.corpus.words`. 
+- From the filtered data, restore words identified as valid names using the `nltk.corpus.names` library, which provides a list of English names. 
 - Keeping only the first name from full names (e.g., “Amélie” from “Amélie Poulain”)
 
 The cleaned data was saved in a CSV file for streamlined analysis.
 
 ### Step 2: Feature Extraction for Name Analysis
-In this step, we examined the characteristics of first names to lay the foundation for the rest of our analysis. We extracted several specific traits of the names:
+In this step, we examined the characteristics of first names to determine the foundation for the rest of our analysis. We extracted several specific traits of the names:
 - Length (using Python’s `len()` function)
-- Structure (vowel and consonant count using pandas)
+- Structure (vowel and consonant count using `pandas`)
 - First and last letters
 
 Next, we will merge the cultural origin dataset and apply phonetic analysis using algorithms like Soundex or Metaphone to explore pronunciation patterns and trends related to names.
 
 ### Step 3: Understanding the Data
-To better understand the relationships between character names and their traits, we started by exploring the data to identify patterns and formulate hypotheses. Our goal is to uncover trends related to gender, age, movie genres, character importance, ethnicity, and the phonetic characteristics of names.
+To better understand the relationships between character names and their traits, we started by exploring the data to identify patterns and formulate hypotheses. Our goal was to find trends related to gender, age, movie genres, character importance, ethnicity, and the phonetic characteristics of names.
 
 ### Step 4: Study of Correlations Between Name Characteristics and Character Features
-We focus on identifying key correlations in the data, especially phonetic patterns linked to factors like gender, movie genre, age, and ethnicity. We will examine whether certain sounds are tied to specific genres or character roles and explore the influence of filming locations on name origins.
+We plan on identifying correlations in the data, especially phonetic patterns linked to factors like gender, movie genre, age, and ethnicity. We will examine whether certain sounds are tied to specific genres or character roles and explore the influence of filming locations on name origins.
 
 ### Step 5: Sentiment Analysis
 The goal is to analyze the connotations of character names and how they are linked to character traits. We will conduct sentiment analysis on sentences featuring these names, identifying structures and adjectives to determine if the names have positive, negative, or neutral connotations. Phonetic analysis will further explore whether phonetic traits (like name length or consonant count) correlate with specific roles, such as villains.
@@ -46,7 +47,6 @@ The goal is to analyze the connotations of character names and how they are link
 Our aim is to develop a “Character ID” model that predicts the most likely characteristics of a movie character based on their first name. The model would generate a character profile, including attributes such as age, ethnicity, gender, and whether the character is a villain or hero. Additionally, we plan to generate a list of first names most commonly associated with villains or heroes in films.
 
 ### Step 7: Create Data Story
-We will summarize and visualize our findings in an engaging narrative, presenting the insights gained from the analysis.
 
 ## Organisation:
 COMPLETER
