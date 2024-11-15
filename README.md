@@ -17,7 +17,7 @@ We propose integrating a dataset that associates each first name with its ethnic
 
 ## Project Plans and Methods
 
-### Step 1: Data Exploration
+### Step 0: Data Exploration
 We began with data cleaning, removing irrelevant columns and rows, particularly those missing character names. For preprocessing, we isolated first names by:
 - Stripping out prefixes (e.g., “Dr. Alison Parker” becomes “Alison Parker”)
 - Eliminate commun names like “taxi” or “waiter” using `nltk.corpus.words`. 
@@ -26,12 +26,14 @@ We began with data cleaning, removing irrelevant columns and rows, particularly 
 
 The cleaned data was saved in a CSV file for streamlined analysis.
 
-### Step 2: Feature Extraction for Name Analysis
-In this step, we examined the characteristics of first names to determine the foundation for the rest of our analysis. We extracted several specific traits of the names:
-- Length (using Python’s `len()` function)
-- Structure (vowel and consonant count using `pandas`)
-- First and last letters
+### Step 1: Present globally the data
 
+### Step 2: Feature Extraction for Name Analysis
+In this step, we examined the name characteristics to devide the genders for the rest of our analysis. We extracted several characteristics of the names :
+- Length (using Python’s `len()` function)
+- Structure (vowel and consonant count using `pandas`, first and last letters)
+
+** For P3 : **
 Next, we will merge the "Name Ethnicity" dataset and apply phonetic analysis using algorithms like Soundex or Metaphone to explore pronunciation patterns and trends related to names.
 
 ### Step 3: Understanding the Data
