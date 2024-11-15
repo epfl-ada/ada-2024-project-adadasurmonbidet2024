@@ -29,13 +29,16 @@ The cleaned data was saved in the `cleaned.csv` file for streamlined analysis.
 ### Step 1: Present globally the data
 
 ### Step 2: Feature Extraction for Name Analysis
-We examined the name characteristics to devide the genders for the rest of our analysis. We extracted several characteristics of the names :
-- Length (using Python’s `len()` function)
-- Structure (vowel and consonant count using `pandas`, first and last letters)
+We examined the name characteristics by gender to justify the division of male and female for the rest of the analysis. We analysed several characteristics of the names :
+- Length : using Python’s `len()` function
+- Structure : 
+    - first and last letters
+    - vowel and consonant count using `pandas`
+    - n-gram (first test, will be done for P3)
+- Phonetics (P3)
 
-**For P3 :** These name characteristics will be added so we can
-- Ethnicity
-- Phonetics
+**For P3 :** We're will be added (using an external dataset): Origin. To justify the
+
 We will merge the "Name Ethnicity" dataset and apply phonetic analysis using algorithms like Soundex or Metaphone to explore pronunciation patterns and trends related to names.
 
 ### Step 3: Understanding the Data
