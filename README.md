@@ -32,13 +32,13 @@ In this step, we examined the characteristics of first names to determine the fo
 - Structure (vowel and consonant count using `pandas`)
 - First and last letters
 
-Next, we will merge the cultural origin dataset and apply phonetic analysis using algorithms like Soundex or Metaphone to explore pronunciation patterns and trends related to names.
+Next, we will merge the "Name Ethnicity" dataset and apply phonetic analysis using algorithms like Soundex or Metaphone to explore pronunciation patterns and trends related to names.
 
 ### Step 3: Understanding the Data
-To better understand the relationships between character names and their traits, we started by exploring the data to identify patterns and formulate hypotheses. Our goal was to find trends related to gender, age, movie genres, character importance, ethnicity, and the phonetic characteristics of names.
+To better understand the relationships between character names and movies, we started by looking at the data to identify patterns and formulate hypotheses. Our goal was to find trends in character features, such as the distribution of names across different movie genres.
 
 ### Step 4: Study of Correlations Between Name Characteristics and Character Features
-We plan on identifying correlations in the data, especially phonetic patterns linked to factors like gender, movie genre, age, and ethnicity. We will examine whether certain sounds are tied to specific genres or character roles and explore the influence of filming locations on name origins.
+We plan on identifying correlations in the data, especially between name characteristics and character features. We will examine whether certain sounds are tied to specific genres or character roles and explore the influence of filming locations on name origins.
 
 ### Step 5: Sentiment Analysis
 The goal is to analyze the connotations of character names and how they are linked to character traits. We will conduct sentiment analysis on sentences featuring these names, identifying structures and adjectives to determine if the names have positive, negative, or neutral connotations. Phonetic analysis will further explore whether phonetic traits (like name length or consonant count) correlate with specific roles, such as villains.
