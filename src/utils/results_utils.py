@@ -16,6 +16,8 @@ import pycountry
 import pycountry_convert as pc
 import seaborn as sns
 
+import gzip
+import xml.etree.ElementTree as Xet
 
 ############## Data presentation ####################
 
