@@ -60,11 +60,11 @@ We aim to develop a “Character ID” model that predicts the most likely chara
 Create the website.
 
 ## Organisation:
-- Luca:
-- AInhoa: 
-- Fanny:
-- Zacharie:
-- Amaury:
+- Luca: Task 6
+- AInhoa: Task 2 and 4
+- Fanny: Task 5 and 7
+- Zacharie: Task 4 and 6
+- Amaury: Task 2 and 4
 
 ## Proposed Timeline
 - **22.11.2023**: Step 1 to 3
