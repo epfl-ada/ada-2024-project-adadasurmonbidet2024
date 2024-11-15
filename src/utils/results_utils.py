@@ -32,6 +32,44 @@ def calculate_column_freq(df, column_name='Character_name'):
     
     return counts_df
 
+def plot_sex_distribution_with_top_names(df_char_cleaned: pd.DataFrame):
+    # Calculate total counts for each gender
+    sex_counts = df_char_cleaned.groupby('Sex').size()
+    
+    # Get the top 3 frequent names for each gender
+    top_names = (
+        df_char_cleaned.groupby('Sex')['Character_name']
+        .apply(lambda x: x.value_counts().head(3).index.tolist())
+    )
+
+    # Create the plot
+    fig = go.Figure()
+
+    # Add bars for male and female
+    for sex, color in zip(['M', 'F'], ['skyblue', 'salmon']):
+        fig.add_trace(go.Bar(
+            x=['Male' if sex == 'M' else 'Female'],  # Male or Female as x-axis categories
+            y=[sex_counts[sex]],  # Total counts for each gender
+            name='Male' if sex == 'M' else 'Female',
+            marker_color=color,
+            hovertext=[
+                f"Total count: {sex_counts[sex]}<br>Top names: {', '.join(top_names[sex])}"
+            ],
+            hoverinfo="text"
+        ))
+
+    # Update layout
+    fig.update_layout(
+        title='Total Names Count by Gender with Top 3 Names',
+        xaxis_title='Gender',
+        yaxis_title='Total Names Count',
+        xaxis=dict(tickangle=0),
+        legend=dict(title="Gender")
+    )
+
+    # Show the plot
+    fig.show()
+
 ############## Statistics ####################
 
 def create_contingency_table(df_char_cleaned:pd.DataFrame,feature1:str,feature2:str):
