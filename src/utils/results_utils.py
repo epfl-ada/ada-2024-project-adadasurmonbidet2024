@@ -481,3 +481,34 @@ def parse_xml_gz(xml_gz_file):
             coreferences.append(coref_chain_data)
 
     return {"sentences_data": sentences_data, "coreferences": coreferences}
+
+def filter_sentences_by_character(character_name, sentences_data, coreferences_data):
+    character_sentences = []
+
+    for sentence_data in sentences_data:
+        if character_name.lower() in sentence_data["sentence_text"].lower():
+            character_sentences.append(sentence_data["sentence_text"])
+
+    for coref_chain in coreferences_data:
+        representative_mention = next((m for m in coref_chain if m["representative"]), None)
+        if representative_mention:
+            sentence_id = representative_mention["sentence_id"]
+            sentence_text = next(
+                (s["sentence_text"] for s in sentences_data if s["sentence_id"] == sentence_id),
+                None
+            )
+            if sentence_text and character_name.lower() in sentence_text.lower():
+                for mention in coref_chain:
+                    sentence_data = next(
+                        (s for s in sentences_data if s["sentence_id"] == mention["sentence_id"]),
+                        None
+                    )
+                    if sentence_data:
+                        character_sentences.append(sentence_data["sentence_text"])
+                        
+    character_sentences = list(set(character_sentences))
+
+    df = pd.DataFrame({
+        "character_sentences": character_sentences
+    })
+    return df
