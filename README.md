@@ -17,7 +17,7 @@ We propose integrating a dataset that associates each first name with its ethnic
 
 ## Project Plans and Methods
 
-### Step 0: Data Exploration
+### Task 0: Data Exploration
 We began with data cleaning, removing irrelevant columns and rows, particularly those missing the character name. For preprocessing, we isolated first names by:
 - Stripping out prefixes (e.g., “Dr. Alison Parker” becomes “Alison Parker”)
 - Eliminate commun names like “taxi” or “waiter” using `nltk.corpus.words`. 
@@ -26,9 +26,9 @@ We began with data cleaning, removing irrelevant columns and rows, particularly 
 
 The cleaned data was saved in the `cleaned.csv` file for streamlined analysis.
 
-### Step 1: Present globally the data
+### Task 1: Present globally the data
 
-### Step 2: Feature Extraction for Name Analysis
+### Task 2: Feature Extraction for Name Analysis
 We aim to analyze gender and ethnicity, as they are the only two fixed character traits that remain independent of contextual factors such as the production country or movie genre.
 We examined the name characteristics by gender to justify the division of male and female for the rest of the analysis. We analysed several characteristics of the names :
 - Structure : 
@@ -43,20 +43,20 @@ We proved significant differences in the structure of female/male names.
 **For P3 :** We'll add (using an external dataset: "Name_Ethnicity") an analysis on: Ethnicity. This aims to compare the origins of character names with the country of production of the movie and the roles assigned to these characters, revealing cultural patterns or contrasts in naming and characterization within films.
 We'll be looking for differences in structure and/or phonetic of name from different ethnicity. 
 
-### Step 3: Understanding the Data
+### Task 3: Understanding the Data
 To better understand the relationships between character names and movies, we started by looking at the data to identify patterns and formulate hypotheses. Our goal was to find trends in character features, such as the distribution of names across different movie genres, countries and ages.
 
-### Step 4: Study of Trends Between Name Characteristics and Character Features
+### Task 4: Study of Trends Between Name Characteristics and Character Features
 We identified statistically significant associations between names and movie genre/country.
 We plan on identifying trends in the data, especially between name characteristics and character features. We will examine whether certain sounds are tied to specific genres or character roles and explore the influence of filming locations on name origins.
 
-### Step 5: Sentiment Analysis
+### Task 5: Sentiment Analysis
 The goal is to analyze the connotations of character names and how they are linked to name characteristics. We will conduct sentiment analysis on sentences featuring these names, identifying structures and adjectives to determine if the names have positive, negative, or neutral connotations. Phonetic analysis of names will further explore whether phonetic traits (like name length or consonant count) correlate with specific roles, such as villains.
 
-### Step 6: Predictive Model & Generative List of Heroes/Villains
+### Task 6: Predictive Model & Generative List of Heroes/Villains
 We aim to develop a “Character ID” model that predicts the most likely characteristics of a movie character based on their first name. The model would generate a character profile, including attributes such as gender, ethnicity, age, movie genre and whether the character is a villain or hero.
 
-### Step 7: Create Data Story
+### Task 7: Create Data Story
 Create the website.
 
 ## Organisation:
@@ -66,9 +66,11 @@ Create the website.
 - Zacharie: Task 4 and 6
 - Amaury: Task 2 and 4
 
+Can be rearanged if some Tasks are longer than others.
+
 ## Proposed Timeline
-- **22.11.2023**: Step 1 to 3
-- **29.11.2024**: Homework 2
-- **13/12/2023**: Step 4 to 5
-- **18.12.2023**: Step 6 to 7
-- **20.12.2023**: Deadline Milestone 3
+- *22.11.2023*: Task 1 to 3 completely done, work on Task 5
+- *29.11.2024*: Homework 2
+- *06.12.2023*: Task 4 done, start Task 6, finalize Task 5
+- *13.12.2023*: Task 6 and 7
+- *20.12.2023*: Deadline P3
