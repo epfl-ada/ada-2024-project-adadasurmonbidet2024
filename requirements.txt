@@ -6,3 +6,5 @@ pycountry==24.6.1
 pycountry_convert==0.7.2
 scikit_learn==1.5.2
 seaborn==0.13.2
+scipy
+matplotlib
