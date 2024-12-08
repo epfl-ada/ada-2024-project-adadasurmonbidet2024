@@ -59,22 +59,21 @@ def filter_country_names(country: str) -> str:
     normalized_country = normalization_map.get(normalized_country, normalized_country)
 
     region_mappings = {
-        "Western Europe": ["france", "spain", "belgium", "luxembourg", "netherlands", "switzerland", "ireland", "austria", "greece", "italy", "andorra", "uk", "portugal"],  
-        "Central Europe": ["germany", "poland", "czech republic", "hungary", "slovakia"],
-        "Eastern Europe": ["ukraine", "romania", "bulgaria", "croatia", "serbia", "macedonia", "azerbaijan", "estonia", "lithuania", "montenegro"],
-        "Russia and Ex-USSR": ["russia", "ex-ussr", "uzbekistan", "kazakhstan", "belarus", "armenia", "georgia", "lativia"],
-        "North America": ["usa", "canada", "mexico", "haiti"],  
-        "Latin America": ["brazil", "argentina", "chile", "colombia", "peru", "hispanic", "ecuador", "uruguay", "paraguay", "venezuela", "cuba", "jamaica", "trinidad and tobago"],  
-        "South Asia": ["india", "pakistan", "bangladesh", "nepal", "sri lanka", "bhutan", "maldives"],
-        "East Asia": ["china", "japan", "korea", "taiwan", "mongolia"],
-        "Southeast Asia": ["thailand", "vietnam", "philippines", "malaysia", "indonesia", "cambodia", "laos", "myanmar"],
-        "Middle East": ["iran", "saudi arabia", "turkey", "israel", "iraq", "syria", "lebanon", "jordan", "united arab emirates"],
+        "Germanic": ["germany", "austria", "switzerland", "luxembourg", "liechtenstein", "netherlands"],
+        "Romance": ["france", "belgium", "italy", "spain", "portugal", "andorra", "romania", "moldova"],
+        "Slavic": ["russia", "ukraine", "belarus", "poland", "czech republic", "slovakia", "bulgaria", "serbia", "croatia", "bosnia and herzegovina", "montenegro", "macedonia", "slovenia", "kazakhstan", "uzbekistan", "armenia", "georgia", "azerbaijan"],
+        "English-Speaking": ["uk", "usa", "canada", "ireland"],
+        "Baltic": ["lithuania", "latvia", "estonia"],
+        "Hispanic": ["spain", "mexico", "argentina", "brazil", "chile", "colombia", "peru", "ecuador", "venezuela", "paraguay", "uruguay", "cuba", "jamaica", "trinidad and tobago"],
         "Nordic": ["denmark", "sweden", "norway", "finland", "iceland"],
-        "Sub-Saharan Africa": ["nigeria", "kenya", "south africa", "ghana", "ethiopia", "angola", "uganda", "zambia", "togo", "senegal", "zimbabwe"], 
+        "Middle Eastern": ["iran", "turkey", "israel", "iraq", "syria", "lebanon", "jordan", "saudi arabia", "united arab emirates"],
+        "South Asian": ["india", "pakistan", "bangladesh", "nepal", "sri lanka", "maldives", "bhutan"],
+        "East Asian": ["china", "japan", "korea", "taiwan", "mongolia"],
+        "Southeast Asian": ["thailand", "vietnam", "philippines", "malaysia", "indonesia", "cambodia", "laos", "myanmar"],
         "North Africa": ["egypt", "morocco", "algeria", "tunisia", "libya", "sudan"],
-        "Oceania": ["australia", "new zealand", "fiji", "papua new guinea", "samoa", "tonga"],
+        "Sub-Saharan Africa": ["nigeria", "kenya", "south africa", "ghana", "ethiopia", "angola", "uganda", "zambia", "senegal", "togo", "zimbabwe"],
+        "Oceania": ["fiji", "papua new guinea", "samoa", "tonga", "australia", "new zealand"],
     }
-
 
     # Assign to a region or return the normalized country as-is
     for region, countries in region_mappings.items():
@@ -106,14 +105,18 @@ df_ethny['Country'] = df_ethny['Country'].apply(filter_country_names)
 
 # Grouping per name and counting distribution in each country
 df_ethny = df_ethny.groupby(['Name', 'Country']).size().reset_index(name='Distribution')
-df_ethny['Distribution'] = df_ethny.groupby('Name')['Distribution'].transform(lambda x: (x / x.sum())) # Calculating the percentage of ooccurence
+df_ethny['Distribution'] = df_ethny.groupby('Name')['Distribution'].transform(lambda x: (x / x.sum()))  # Calculate the percentage of occurrence
 
-# Pivoting the table to have one row per name and one column per origin
-df_ethny = df_ethny.pivot(index='Name', columns='Country', values='Distribution').fillna(0)
-df_ethny = df_ethny.reset_index()
+# Keep only the most probable ethnicity for each name
+df_ethny = df_ethny.loc[df_ethny.groupby('Name')['Distribution'].idxmax()]  # Select the row with the max probability for each name
 
+# Drop the 'Distribution' column (optional, as it's no longer needed)
+df_ethny = df_ethny.drop(columns=['Distribution'])
 
-# Export the dataset in csv file
-print('The cleaned dataset contains',df_ethny.shape[0],'rows and',df_ethny.shape[1],'columns')
+# Reset index to ensure a clean output
+df_ethny = df_ethny.reset_index(drop=True)
+
+# Export the dataset in CSV file
+print('The cleaned dataset contains', df_ethny.shape[0], 'rows and', df_ethny.shape[1], 'columns.')
 
 df_ethny.to_csv('data/name_ethnicity.csv', index=False)
