@@ -60,11 +60,11 @@ def filter_country_names(country: str) -> str:
 
     region_mappings = {
         "Germanic": ["germany", "austria", "switzerland", "luxembourg", "liechtenstein", "netherlands"],
-        "Romance": ["france", "belgium", "italy", "spain", "portugal", "andorra", "romania", "moldova"],
+        "Romance": ["france", "belgium", "italy", "andorra", "romania", "moldova"],
         "Slavic": ["russia", "ukraine", "belarus", "poland", "czech republic", "slovakia", "bulgaria", "serbia", "croatia", "bosnia and herzegovina", "montenegro", "macedonia", "slovenia", "kazakhstan", "uzbekistan", "armenia", "georgia", "azerbaijan"],
-        "English-Speaking": ["uk", "usa", "canada", "ireland"],
+        "English-Speaking": ["uk", "usa", "canada", "ireland", "australia", "new zealand"],
         "Baltic": ["lithuania", "latvia", "estonia"],
-        "Hispanic": ["spain", "mexico", "argentina", "brazil", "chile", "colombia", "peru", "ecuador", "venezuela", "paraguay", "uruguay", "cuba", "jamaica", "trinidad and tobago"],
+        "Hispanic": ["spain", "mexico", "argentina", "brazil", "portugal", "chile", "colombia", "peru", "ecuador", "venezuela", "paraguay", "uruguay", "cuba", "jamaica", "trinidad and tobago"],
         "Nordic": ["denmark", "sweden", "norway", "finland", "iceland"],
         "Middle Eastern": ["iran", "turkey", "israel", "iraq", "syria", "lebanon", "jordan", "saudi arabia", "united arab emirates"],
         "South Asian": ["india", "pakistan", "bangladesh", "nepal", "sri lanka", "maldives", "bhutan"],
@@ -72,7 +72,7 @@ def filter_country_names(country: str) -> str:
         "Southeast Asian": ["thailand", "vietnam", "philippines", "malaysia", "indonesia", "cambodia", "laos", "myanmar"],
         "North Africa": ["egypt", "morocco", "algeria", "tunisia", "libya", "sudan"],
         "Sub-Saharan Africa": ["nigeria", "kenya", "south africa", "ghana", "ethiopia", "angola", "uganda", "zambia", "senegal", "togo", "zimbabwe"],
-        "Oceania": ["fiji", "papua new guinea", "samoa", "tonga", "australia", "new zealand"],
+        "Oceania": ["fiji", "papua new guinea", "samoa", "tonga"],
     }
 
     # Assign to a region or return the normalized country as-is
@@ -80,6 +80,11 @@ def filter_country_names(country: str) -> str:
         if normalized_country in countries:
             return region
     return None  # Keep the original normalized country if no match is found
+
+def filter_countries_with_min_names(df: pd.DataFrame, min_names=400) -> pd.DataFrame:
+    country_counts = df['Country'].value_counts()
+    valid_countries = country_counts[country_counts >= min_names].index
+    return df[df['Country'].isin(valid_countries)]
 
 # Get the directory of the current script
 script_dir = os.path.dirname(os.path.abspath(__file__))
@@ -103,15 +108,7 @@ df_ethny = remove_nan_or_space_rows(df_ethny,'Name')
 # Filter the countries
 df_ethny['Country'] = df_ethny['Country'].apply(filter_country_names)
 
-# Grouping per name and counting distribution in each country
-df_ethny = df_ethny.groupby(['Name', 'Country']).size().reset_index(name='Distribution')
-df_ethny['Distribution'] = df_ethny.groupby('Name')['Distribution'].transform(lambda x: (x / x.sum()))  # Calculate the percentage of occurrence
-
-# Keep only the most probable ethnicity for each name
-df_ethny = df_ethny.loc[df_ethny.groupby('Name')['Distribution'].idxmax()]  # Select the row with the max probability for each name
-
-# Drop the 'Distribution' column (optional, as it's no longer needed)
-df_ethny = df_ethny.drop(columns=['Distribution'])
+df_ethny = filter_countries_with_min_names(df_ethny, min_names=400)
 
 # Reset index to ensure a clean output
 df_ethny = df_ethny.reset_index(drop=True)
