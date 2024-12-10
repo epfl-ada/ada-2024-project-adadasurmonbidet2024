@@ -8,6 +8,7 @@ import plotly.graph_objects as go
 import pycountry
 import pycountry_convert as pc
 import seaborn as sns
+from metaphone import doublemetaphone
 
 import gzip
 import xml.etree.ElementTree as Xet
@@ -438,6 +439,64 @@ class CountryAnalyzer(Analyzer):
         df_top_names = (
         df_top_names.groupby('primary_country', as_index=False).agg({'Number_of_movies': 'sum', 'Female_name': 'first','Male_name': 'first'}))
         return df_top_names
+
+
+
+### ---------- Phonetic Analysis ---------------------
+
+class PhoneticAnalyzer(Analyzer):
+    def __init__(self, data,manner_groups,manner_names):
+        super().__init__(data)
+        self.data['Phonetic'] = self.data["Character_name"].apply(lambda x: doublemetaphone(x)[0])
+        self.manner_groups = manner_groups
+        self.manner_names = manner_names
+
+
+    def assign_phonetic_group(self,category):
+        results = []
+
+        for i, consonants in enumerate(self.manner_groups):
+            for _, row in self.data.iterrows():
+                if any(consonant in row['Phonetic'] for consonant in consonants):
+                    results.append({
+                        f'{category}': row[f'{category}'],
+                        'Consonant_Group': self.manner_names[i]
+                    })
+        results_df = pd.DataFrame(results)
+        return results_df
+
+
+    def consonant_group_features(self):
+        for i, consonants in enumerate(self.manner_groups):
+            group_name = self.manner_names[i]
+            self.data[group_name] = self.data['Phonetic'].apply(
+                lambda phonetic: 1 if any(consonant in phonetic for consonant in consonants) else 0
+            )
+
+
+    def compute_binomial_ci(self,p,tot_sample):
+        Z = 1.96
+        if tot_sample <=0:
+            print(f'invalid tot_sample: {tot_sample}')
+        ci = Z * np.sqrt(p*(1-p)/tot_sample)
+        return ci
+
+
+    def phonetics_by_gender(self)->pd.DataFrame:
+        tot_nb_names = self.data['Sex'].value_counts()
+        manner_df = self.assign_phonetic_group('Sex')
+        manner_df = manner_df.groupby(['Consonant_Group','Sex'])['Sex'].size().reset_index(name='Count')
+
+        #We divide by the total number of female/male name to normalize the values
+        manner_df['Percent']=manner_df.apply(lambda row: row['Count'] / tot_nb_names[0] if row['Sex'] == 'M' else row['Count'] / tot_nb_names[1],axis=1) * 100
+
+        #We create a new column calculating the CI in preparation for the plot
+        manner_df['CI'] = manner_df.apply(lambda row: self.compute_binomial_ci(row['Percent'],
+                        (tot_nb_names[0] if row['Sex'] == 'M' else tot_nb_names[1])),axis=1)
+        return manner_df
+
+
+
 
 ### ---------- Sentimental Analysis ---------------------
 
