@@ -494,6 +494,19 @@ class PhoneticAnalyzer(Analyzer):
         manner_df['CI'] = manner_df.apply(lambda row: self.compute_binomial_ci(row['Percent'],
                         (tot_nb_names[0] if row['Sex'] == 'M' else tot_nb_names[1])),axis=1)
         return manner_df
+    
+    def phonetics_by_age(self)->pd.DataFrame:
+        age_order = ['<12y','13y-17y','18y-24y','25y-34y','35y-44y','45y-54y','55y-64y','65y-74y','75y-84y','>85y']
+        tot_nb_names_per_age = self.data['age_category'].value_counts().reset_index()
+
+
+        manner_age_df = self.assign_phonetic_group('age_category')
+        manner_age_df = manner_age_df.groupby(['Consonant_Group','age_category'])['age_category'].size().reset_index(name='Count')
+
+        #We divide by the total number of characters in each age category to normalize the values
+        manner_age_df['Percent']=manner_age_df.apply(lambda row: row['Count'] /
+            tot_nb_names_per_age[tot_nb_names_per_age['age_category']==row['age_category']]['count'].values[0],axis=1)
+        return manner_age_df
 
 
 
