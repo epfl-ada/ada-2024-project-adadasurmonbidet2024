@@ -473,14 +473,16 @@ class PhoneticAnalyzer(Analyzer):
                 lambda phonetic: 1 if any(consonant in phonetic for consonant in consonants) else 0
             )
 
-
+    '''
     def compute_binomial_ci(self,p,tot_sample):
         Z = 1.96
         if tot_sample <=0:
-            print(f'invalid tot_sample: {tot_sample}')
+            raise ValueError('not good tot_sample')
+        if p<0:
+            raise ValueError('not good p') 
         ci = Z * np.sqrt(p*(1-p)/tot_sample)
         return ci
-
+    '''
 
     def phonetics_by_gender(self)->pd.DataFrame:
         tot_nb_names = self.data['Sex'].value_counts()
@@ -488,11 +490,12 @@ class PhoneticAnalyzer(Analyzer):
         manner_df = manner_df.groupby(['Consonant_Group','Sex'])['Sex'].size().reset_index(name='Count')
 
         #We divide by the total number of female/male name to normalize the values
-        manner_df['Percent']=manner_df.apply(lambda row: row['Count'] / tot_nb_names[0] if row['Sex'] == 'M' else row['Count'] / tot_nb_names[1],axis=1) * 100
+        manner_df['Percent']=manner_df.apply(lambda row: row['Count'] / tot_nb_names[0] if row['Sex'] == 'M' else row['Count'] / tot_nb_names[1],axis=1)
 
         #We create a new column calculating the CI in preparation for the plot
-        manner_df['CI'] = manner_df.apply(lambda row: self.compute_binomial_ci(row['Percent'],
-                        (tot_nb_names[0] if row['Sex'] == 'M' else tot_nb_names[1])),axis=1)
+        #manner_df['CI'] = manner_df.apply(lambda row: self.compute_binomial_ci(row['Percent'],
+                        #(tot_nb_names[0] if row['Sex'] == 'M' else tot_nb_names[1])),axis=1)
+        manner_df['Percent'] *= 100
         return manner_df
     
     def phonetics_by_age(self)->pd.DataFrame:
@@ -505,7 +508,7 @@ class PhoneticAnalyzer(Analyzer):
 
         #We divide by the total number of characters in each age category to normalize the values
         manner_age_df['Percent']=manner_age_df.apply(lambda row: row['Count'] /
-            tot_nb_names_per_age[tot_nb_names_per_age['age_category']==row['age_category']]['count'].values[0],axis=1)
+            tot_nb_names_per_age[tot_nb_names_per_age['age_category']==row['age_category']]['count'].values[0],axis=1) *100
         return manner_age_df
 
 
