@@ -17,7 +17,7 @@ english_words = set(words.words())
 all_names = set(names.words())
 
 # Define invalid characters and word lists for filtering
-invalid_chars = set("-/.,'\"#()0123456789")
+invalid_chars = set("-/.,'\"#()0123456789Ú'´'́':!\’Æ“-~;[Ş”`]-с")
 invalid_word_list = {
     'american', 'british', 'french', 'italian', 'german', 'spanish', 
     'mexican', 'canadian', 'australian', 'japanese', 'russian', 'chinese', 
