@@ -50,5 +50,5 @@ kept_names['Character_name'] = kept_names['Character_name'].apply(keep_first_nam
 # Merged the filtered character names with the movies dataset to add some informations on the dataset
 df_char_cleaned = pd.merge(movies_df,kept_names, on="Wikipedia_ID",how="inner")[['Wikipedia_ID','Name','Languages','Country','Genres','Character_name','Sex','Actor_age','Release_date']]
 print('The cleaned dataset contains',df_char_cleaned.shape[0],'rows and',df_char_cleaned.shape[1],'columns')
-
+df_char_cleaned.reset_index(drop=True)
 df_char_cleaned.to_csv('data/cleaned.csv', index=False)
