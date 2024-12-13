@@ -74,3 +74,5 @@ def keep_first_name(name: str) -> str:
     Keep only the first name from a full name string.
     """
     return name.split()[0] if name else name
+
+
