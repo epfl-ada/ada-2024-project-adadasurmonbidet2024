@@ -50,11 +50,12 @@ def filter_non_english_names(name):
 
     filtered_words = [
         word for word in words_in_name 
-        if word.lower() not in english_words 
-        and word.lower() not in invalid_word_list
-        and all(char not in word for char in invalid_chars) 
-        and any(char in vowels for char in word.lower())
-        and sum(1 for char in word if char.isupper()) <= 1
+        if word.lower() not in english_words                    # Exclude English words
+        and word.lower() not in invalid_word_list               # Exclude invalid words
+        and all(char not in word for char in invalid_chars)     # Exclude words with invalid characters
+        and any(char in vowels for char in word.lower())        # Ensure the word contains at least one vowel
+        and sum(1 for char in word if char.isupper()) <= 1      # Limit uppercase letters to 1
+        and word.istitle()                                      # Ensure the word starts with a capital letter
     ]
     return ' '.join(filtered_words)
 
