@@ -12,6 +12,7 @@ from metaphone import doublemetaphone
 
 import gzip
 import xml.etree.ElementTree as Xet
+from textblob import TextBlob
 
 ############## Data presentation ####################
 
@@ -188,7 +189,6 @@ class GenreAnalyzer(Analyzer):
 
         return data
 
-
     def count_name_appearance_by_genre(self, name_substring='Luca'):
         df_name = self.data[self.data['Character_name'].str.lower().str.startswith(name_substring.lower(), na=False)]
 
@@ -211,6 +211,34 @@ class GenreAnalyzer(Analyzer):
         genre_counts_transposed.columns.name = None
 
         return genre_counts_df, df_name
+    
+    def get_top_names_by_genre_SA(self, nb_of_names):
+        genres = self.genres_list
+        df_male = self.data[self.data['Sex'] == 'M']
+        df_female = self.data[self.data['Sex'] == 'F']
+
+        results = {}
+
+        for genre in genres:
+            male_genre_names = df_male[df_male['Genres'].apply(lambda categories: genre in categories)]
+            female_genre_names = df_female[df_female['Genres'].apply(lambda categories: genre in categories)]
+
+            top_male_positive_names = male_genre_names.nlargest(nb_of_names, 'Polarity')['Character_Name'].tolist()
+            top_female_positive_names = female_genre_names.nlargest(nb_of_names, 'Polarity')['Character_Name'].tolist()
+
+            top_male_negative_names = male_genre_names.nsmallest(nb_of_names, 'Polarity')['Character_Name'].tolist()
+            top_female_negative_names = female_genre_names.nsmallest(nb_of_names, 'Polarity')['Character_Name'].tolist()
+
+            results[genre] = {
+                'Female Positive Names': top_female_positive_names,
+                'Male Positive Names': top_male_positive_names,
+                'Female Negative Names': top_female_negative_names,
+                'Male Negative Names': top_male_negative_names
+            }
+
+        result_df = pd.DataFrame.from_dict(results, orient='index')
+
+        return result_df
 
 ### ---------- Gender Analysis ---------------------
 
@@ -598,3 +626,33 @@ def filter_sentences_by_character(character_name, sentences_data, coreferences_d
         "character_sentences": character_sentences
     })
     return df
+
+def get_sentiment_with_textblob(sentence):
+    analysis = TextBlob(sentence)
+    return analysis.sentiment.polarity, analysis.sentiment.subjectivity
+
+def process_character_sentiments_textblob(sentences):
+    polarity_textblob = []
+    subjectivity_textblob = []
+    
+    for sentence in sentences:
+        polarity, subjectivity = get_sentiment_with_textblob(sentence)
+        polarity_textblob.append(polarity)
+        subjectivity_textblob.append(subjectivity)
+    
+    mean_polarity_textblob = np.mean(polarity_textblob) if polarity_textblob else None
+    mean_subjectivity_textblob = np.mean(subjectivity_textblob) if subjectivity_textblob else None
+
+    return mean_polarity_textblob, mean_subjectivity_textblob
+
+def interpret_polarity(p):
+    if -1 <= p < -0.5:
+        return "Very bad guy"
+    elif -0.5 <= p < 0:
+        return "Bad guy"
+    elif p == 0:
+        return "Neutral"
+    elif 0 < p <= 0.5:
+        return "Nice guy"
+    elif 0.5 < p <= 1:
+        return "Very nice guy"
