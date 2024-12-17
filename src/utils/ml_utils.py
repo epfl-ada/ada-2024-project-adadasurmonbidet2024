@@ -13,6 +13,8 @@ from sklearn.feature_extraction.text import HashingVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import f1_score, accuracy_score
+from imblearn.over_sampling import SMOTE
+from sklearn.metrics import classification_report
 import pickle
 
 def get_vowel_stats(df: pd.DataFrame, category:str) -> tuple:
@@ -202,12 +204,16 @@ class PredictorModel():
 
         return cleaned_df
     
-    def train(self,df):
+    def train(self,df,f1=False, balancing=False):
         X = df.drop(columns=[self.feature])
         y = df[self.feature]
 
         #Create the train and validation set
         X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, random_state=42)
+
+        if balancing:
+            smote = SMOTE(sampling_strategy='auto', random_state=42)
+            X_train, y_train = smote.fit_resample(X_train, y_train)
 
         #Training
         model = MLPClassifier(solver='adam',alpha=10**-5, hidden_layer_sizes=(10,10,2), max_iter=300, random_state=42)
@@ -219,6 +225,10 @@ class PredictorModel():
         
         #Print Accuracy
         y_pred = model.predict(X_val)
+
+        if f1:
+            print(classification_report(y_val,y_pred))
+        
         acc = accuracy_score(y_val,y_pred)
         print(f'Accuracy: {acc:.3f}')
     
