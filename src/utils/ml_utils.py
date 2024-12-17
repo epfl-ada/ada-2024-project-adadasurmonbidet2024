@@ -10,6 +10,10 @@ import matplotlib.pyplot as plt
 import statsmodels.api as sm
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import HashingVectorizer
+from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPClassifier
+from sklearn.metrics import f1_score, accuracy_score
+import pickle
 
 def get_vowel_stats(df: pd.DataFrame, category:str) -> tuple:
     vowels = set('aeiouy')
@@ -179,3 +183,71 @@ class NameFeatureProcessor:
             df = pd.concat([df, ngram_df], axis=1)
 
         return df
+
+
+class PredictorModel():
+    def __init__(self,df:pd.DataFrame,feature:str):
+        self.df = df
+        #Feature we want to predict
+        self.feature = feature
+    
+    def clean_df(self):
+        #Remove unusefull features
+        all_categories = ['Country','Genres','age_category','Character_name','Sex']
+        to_be_dropped = [category for category in all_categories if category != self.feature]
+        cleaned_df = self.df.drop(columns=to_be_dropped)
+
+        #Convert ngram-columns since they are named with numbers
+        cleaned_df.columns = cleaned_df.columns.astype(str) 
+
+        return cleaned_df
+    
+    def train(self,df):
+        X = df.drop(columns=[self.feature])
+        y = df[self.feature]
+
+        #Create the train and validation set
+        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, random_state=42)
+
+        #Training
+        model = MLPClassifier(solver='adam',alpha=10**-5, hidden_layer_sizes=(10,10,2), max_iter=300, random_state=42)
+        model.fit(X_train, y_train)
+
+        #Store the model to avoid recomputing
+        with open('model.pkl', 'wb') as f:
+            pickle.dump(model, f)
+        
+        #Print Accuracy
+        y_pred = model.predict(X_val)
+        acc = accuracy_score(y_val,y_pred)
+        print(f'Accuracy: {acc:.3f}')
+    
+    def feature_creation(self,name):
+        augmented_alphabet = 'abcdefghijklmnopqrstuvwxyzéèíá'
+
+        df_pred = pd.DataFrame([name], columns=['Name'])
+        get_vowel_stats(df_pred,'Name')
+        pred_processor = NameFeatureProcessor('Name',ngram_range=(2,2))
+        df_pred =pred_processor.process(df_pred,alphabet = augmented_alphabet,analyze_name = False, diacritic = False, phonetics = False, first_last = True, ngram=False)
+
+        with open(f'hashing_vectorizer.pkl', 'rb') as f:
+            vectorizer = pickle.load(f)
+
+        ngram_name = vectorizer.transform(df_pred['Name'])
+        ngram_name_df = pd.DataFrame(ngram_name.toarray())
+        df_pred = pd.concat([df_pred, ngram_name_df], axis=1)
+        return df_pred
+
+    def predict_one(self,df):
+        #Load the model
+        with open('model.pkl', 'rb') as f:
+            model = pickle.load(f)
+
+        df.drop(columns=['Name'],inplace=True)
+        df.columns = df.columns.astype(str)
+        return model.predict(df)
+    
+    def create_and_predict(self,name):
+        df = self.feature_creation(name)
+        pred = self.predict_one(df)
+        print('Prediction: ',pred)
