@@ -31,7 +31,7 @@ for index, movie_id in enumerate(movie_ids):
             for sentence in filtered_sentences["character_sentences"]:
                 character_sentences.append(sentence) 
                 count += 1
-                print(count)
+                print(count/650000)
             data.append({
                 "Character_Name": character_name,
                 "Wikipedia_ID": movie_id,
@@ -41,4 +41,24 @@ for index, movie_id in enumerate(movie_ids):
 df = pd.DataFrame(data)
 df = df[df['Sentences'].apply(lambda x: len(x) > 0)]
 df['Sentence_Count'] = df['Sentences'].apply(len)
-df.to_csv('data/sentences_by_character.csv', index=False)
+
+data_textblob = []  
+list_characters = df["Character_Name"]
+count = 0
+
+for index, character_name in enumerate(list_characters):
+    list_sentences_by_character = df["Sentences"].iloc[index]
+    movie_id = df["Wikipedia_ID"].iloc[index]
+    count+=1
+    print(count)
+    mean_polarity_textblob, mean_subjectivity_textblob = process_character_sentiments_textblob(list_sentences_by_character)
+    data_textblob.append({
+        "Character_Name": character_name,
+        "Wikipedia_id": movie_id,
+        "Polarity": mean_polarity_textblob,
+        "Subjectivity" : mean_subjectivity_textblob
+    })
+
+df_sentiment_analysis_textblob = pd.DataFrame(data_textblob)
+
+df_sentiment_analysis_textblob.to_csv('data/sentimental_analysis.csv', index=False)
