@@ -49,7 +49,7 @@ def plot_sex_distribution_with_top_names(df_char_cleaned: pd.DataFrame):
             name='Male' if sex == 'M' else 'Female',
             marker_color=color,
             hovertext=[
-                f"Total count: {sex_counts[sex]}<br>Top names: {', '.join(top_names[sex])}"
+                f"Count: {sex_counts[sex]}<br>Top Names: {', '.join(top_names[sex])}"
             ],
             hoverinfo="text"
         ))
@@ -58,9 +58,8 @@ def plot_sex_distribution_with_top_names(df_char_cleaned: pd.DataFrame):
     fig.update_layout(
         title='Total Names Count by Gender with Top 3 Names',
         xaxis_title='Gender',
-        yaxis_title='Total Names Count',
+        yaxis_title='Name Count',
         xaxis=dict(tickangle=0),
-        legend=dict(title="Gender")
     )
 
     # Show the plot
@@ -264,8 +263,8 @@ class GenderAnalyzer(Analyzer):
 
         male_count = df_letter[df_letter['Sex'] == 'M'].shape[0]
         female_count = df_letter[df_letter['Sex'] == 'F'].shape[0]
-        letter_counts_H_percentage = letter_counts_H / male_count*100
-        letter_counts_F_percentage = letter_counts_F / female_count*100
+        letter_counts_H_percentage = letter_counts_H / male_count
+        letter_counts_F_percentage = letter_counts_F / female_count
         letter_counts = pd.concat([letter_counts_H_percentage, letter_counts_F_percentage], axis=1)
         letter_counts.columns = ['letter_men', 'letter_women']
         letter_counts = letter_counts.head(26)  # Limit to top 26 letters
@@ -283,9 +282,9 @@ class GenderAnalyzer(Analyzer):
         letter_counts, top_letter_names = self._create_letter_count_df(letter_position)
 
         if letter_position == 0:
-            title = 'Percentage of Names Starting by Each Letter by Gender'
+            title = 'Distribution of Names Starting by each Letter by Gender'
         else:
-            title = 'Percentage of Names Ending by Each Letter by Gender'
+            title = 'Distribution of Names Ending by each Letter by Gender'
 
         fig = go.Figure()
 
@@ -309,11 +308,10 @@ class GenderAnalyzer(Analyzer):
 
         fig.update_layout(
             title=title,
-            xaxis_title='Letter of the Name',
-            yaxis_title='% of Total Names by Gender',
+            xaxis_title='Letter',
+            yaxis_title='Normalized Count',
             barmode='group',
             yaxis=dict(ticksuffix='%'),
-            legend_title="Gender"
         )
 
         fig.show()
