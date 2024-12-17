@@ -204,7 +204,7 @@ class PredictorModel():
 
         return cleaned_df
     
-    def train(self,df,f1=False, balancing=False):
+    def train(self,df, balancing=False):
         X = df.drop(columns=[self.feature])
         y = df[self.feature]
 
@@ -223,14 +223,10 @@ class PredictorModel():
         with open('model.pkl', 'wb') as f:
             pickle.dump(model, f)
         
-        #Print Accuracy
+        #Print report
         y_pred = model.predict(X_val)
+        print(classification_report(y_val,y_pred))
 
-        if f1:
-            print(classification_report(y_val,y_pred))
-        
-        acc = accuracy_score(y_val,y_pred)
-        print(f'Accuracy: {acc:.3f}')
     
     def feature_creation(self,name):
         augmented_alphabet = 'abcdefghijklmnopqrstuvwxyzéèíá'
