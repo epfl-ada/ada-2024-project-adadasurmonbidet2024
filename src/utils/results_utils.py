@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 
 import plotly.graph_objects as go
+import plotly.express as px
 import pycountry
 import pycountry_convert as pc
 import seaborn as sns
@@ -862,56 +863,82 @@ class GoodBadGuyAnalyzer(Analyzer):
 
         fig.show()
 
-def get_top_names_by_genre(self, nb_of_names):
-    genres = self.genres_list
-    df_male = self.data[self.data['Sex'] == 'M']
-    df_female = self.data[self.data['Sex'] == 'F']
+    def get_good_guys_girls_names_SA(self, nb_of_names):
+        genres = self.genres_list
+        df_male = self.data[self.data['Sex'] == 'M']
+        df_female = self.data[self.data['Sex'] == 'F']
 
-    top_male_names_by_genre = {}
-    top_female_names_by_genre = {}
+        top_male_names_by_genre = {}
+        top_female_names_by_genre = {}
 
-    # We loop through each genre to get top names for males and females
-    for genre in genres:
-        male_genre_names = df_male[df_male['Genre_Category'].apply(lambda categories: genre in categories)]
-        female_genre_names = df_female[df_female['Genre_Category'].apply(lambda categories: genre in categories)]
+        # We loop through each genre to get top names for males and females
+        for genre in genres:
+            male_genre_names = df_male[df_male['Genre_Category'].apply(lambda categories: genre in categories)]
+            female_genre_names = df_female[df_female['Genre_Category'].apply(lambda categories: genre in categories)]
 
-        # Sort by Polarity ascending and select the lowest
-        top_male_names = male_genre_names.nsmallest(nb_of_names, 'Polarity')['Character_name'].tolist()
-        top_male_names_by_genre[genre] = top_male_names
+            # Sort by Polarity ascending and select the lowest
+            top_male_names = male_genre_names.nlargest(nb_of_names, 'Polarity')['Character_name'].tolist()
+            top_male_names_by_genre[genre] = top_male_names
 
-        top_female_names = female_genre_names.nsmallest(nb_of_names, 'Polarity')['Character_name'].tolist()
-        top_female_names_by_genre[genre] = top_female_names
+            top_female_names = female_genre_names.nlargest(nb_of_names, 'Polarity')['Character_name'].tolist()
+            top_female_names_by_genre[genre] = top_female_names
 
-    frequent_names_m = pd.DataFrame.from_dict(top_male_names_by_genre, orient='index').transpose()
-    frequent_names_f = pd.DataFrame.from_dict(top_female_names_by_genre, orient='index').transpose()
+        good_guys_names_m = pd.DataFrame.from_dict(top_male_names_by_genre, orient='index').transpose()
+        good_girls_names_f = pd.DataFrame.from_dict(top_female_names_by_genre, orient='index').transpose()
 
-    return frequent_names_m, frequent_names_f
+        return good_guys_names_m, good_girls_names_f
+    
+    def get_bad_guys_girls_names_SA(self, nb_of_names):
+        genres = self.genres_list
+        df_male = self.data[self.data['Sex'] == 'M']
+        df_female = self.data[self.data['Sex'] == 'F']
+
+        top_male_names_by_genre = {}
+        top_female_names_by_genre = {}
+
+        # We loop through each genre to get top names for males and females
+        for genre in genres:
+            male_genre_names = df_male[df_male['Genre_Category'].apply(lambda categories: genre in categories)]
+            female_genre_names = df_female[df_female['Genre_Category'].apply(lambda categories: genre in categories)]
+
+            # Sort by Polarity ascending and select the lowest
+            top_male_names = male_genre_names.nsmallest(nb_of_names, 'Polarity')['Character_name'].tolist()
+            top_male_names_by_genre[genre] = top_male_names
+
+            top_female_names = female_genre_names.nsmallest(nb_of_names, 'Polarity')['Character_name'].tolist()
+            top_female_names_by_genre[genre] = top_female_names
+
+        bad_guys_names_m = pd.DataFrame.from_dict(top_male_names_by_genre, orient='index').transpose()
+        bad_girls_names_f = pd.DataFrame.from_dict(top_female_names_by_genre, orient='index').transpose()
+
+        return bad_guys_names_m, bad_girls_names_f
 
 
-def create_sunburst_data_SA(self,frequent_names_f):
-    sunburst_data = []
-    sunburst_data.append({
-        'character': "Movies' Genres",
-        'parent': '',
-    })
-
-    for genre in frequent_names_f.columns:
+    def create_sunburst_data_SA(self,frequent_names_f):
+        sunburst_data = []
         sunburst_data.append({
-            'character': genre,
-            'parent': "Movies' Genres", 
+            'character': "Movies' Genres",
+            'parent': '',
         })
 
-    for genre in frequent_names_f.columns:
-        for idx, prenom in enumerate(frequent_names_f[genre]):
+        for genre in frequent_names_f.columns:
             sunburst_data.append({
-                'character': prenom,
-                'parent': genre,  # Genre comme parent
+                'character': genre,
+                'parent': "Movies' Genres", 
             })
 
-    sunburst_df = pd.DataFrame(sunburst_data)
-    data = {
-        'character': sunburst_df['character'].tolist(),
-        'parent': sunburst_df['parent'].tolist(),
-    }
+        for genre in frequent_names_f.columns:
+            for idx, prenom in enumerate(frequent_names_f[genre]):
+                sunburst_data.append({
+                    'character': prenom,
+                    'parent': genre,  # Genre comme parent
+                })
 
-    return data
+        sunburst_df = pd.DataFrame(sunburst_data)
+
+        data = {
+            'character': sunburst_df['character'].tolist(),
+            'parent': sunburst_df['parent'].tolist(),
+        }
+
+        return data

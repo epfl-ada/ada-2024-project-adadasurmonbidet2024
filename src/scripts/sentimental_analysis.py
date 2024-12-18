@@ -53,7 +53,7 @@ for index, character_name in enumerate(list_characters):
     print(count)
     mean_polarity_textblob, mean_subjectivity_textblob = process_character_sentiments_textblob(list_sentences_by_character)
     data_textblob.append({
-        "Character_Name": character_name,
+        "Character_name": character_name,
         "Wikipedia_id": movie_id,
         "Polarity": mean_polarity_textblob,
         "Subjectivity" : mean_subjectivity_textblob
