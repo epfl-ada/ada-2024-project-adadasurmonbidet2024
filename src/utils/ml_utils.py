@@ -257,3 +257,60 @@ class PredictorModel():
         df = self.feature_creation(name)
         pred = self.predict_one(df)
         print('Prediction: ',pred)
+
+class GenreCategorizer:
+    def __init__(self):
+        # Define genre categories
+        self.action_adventure = ['Action', 'Adventure', 'Thriller', 'War film', 'Action/Adventure', 'Martial Arts Film', 'Wuxia', 'Superhero movie', 'Western', 'Sword and sorcery', 'Spy', 'Supernatural']
+        self.drama = ['Drama', 'Biographical film', 'Crime Drama', 'Family Film', 'Family Drama', 'Historical fiction', 'Biopic [feature]', 'Courtroom Drama', 'Political drama', 'Family-Oriented Adventure', 'Psychological thriller']
+        self.comedy = ['Comedy', 'Romantic comedy', 'Comedy-drama', 'Comedy film', 'Black comedy', 'Slapstick', 'Romantic comedy', 'Musical', 'Satire', 'Parody', 'Comedy horror']
+        self.horror_thriller = ['Horror', 'Psychological horror', 'Horror Comedy', 'Slasher', 'Thriller', 'Crime Thriller', 'Sci-Fi Horror', 'Suspense', 'Zombie Film', 'Natural horror films']
+        self.fantasy_sci = ['Fantasy', 'Science Fiction', 'Space western', 'Fantasy Adventure', 'Fantasy Comedy', 'Sci-Fi Horror', 'Sci-Fi Thriller', 'Fantasy Drama', 'Dystopia', 'Alien Film', 'Cyberpunk', 'Time travel']
+        self.historical_war = ['Historical drama', 'Historical fiction', 'Historical Epic', 'Epic', 'War effort', 'War film', 'Period piece', 'Courtroom Drama']
+        self.romance = ['Romance Film', 'Romantic drama', 'Romance', 'Romantic fantasy', 'Marriage Drama']
+        self.documentary = ['Documentary', 'Docudrama', 'Biography', 'Historical Documentaries', 'Mondo film', 'Patriotic film', 'Educational']
+        self.music_performance = ['Musical', 'Music', 'Musical Drama', 'Musical comedy', 'Dance', 'Jukebox musical', 'Concert film']
+        self.cult_b_movies = ['Cult', 'B-movie', 'Indie', 'Experimental film', 'Surrealism', 'Avant-garde', 'Grindhouse', 'Blaxploitation', 'Camp']
+
+    def _categorize_genre(self, genres_movies) -> list:
+        categories = []
+        
+        # Iterate through the genres and categorize
+        for genre in genres_movies:
+            if genre in self.action_adventure:
+                if 'Action & Adventure' not in categories:
+                    categories.append('Action & Adventure')
+            if genre in self.drama:
+                if 'Drama' not in categories:
+                    categories.append('Drama')
+            if genre in self.comedy:
+                if 'Comedy' not in categories:
+                    categories.append('Comedy')
+            if genre in self.horror_thriller:
+                if 'Horror & Thriller' not in categories:
+                    categories.append('Horror & Thriller')
+            if genre in self.fantasy_sci:
+                if 'Fantasy & Sci-Fi' not in categories:
+                    categories.append('Fantasy & Sci-Fi')
+            if genre in self.historical_war:
+                if 'Historical & War' not in categories:
+                    categories.append('Historical & War')
+            if genre in self.romance:
+                if 'Romance' not in categories:
+                    categories.append('Romance')
+            if genre in self.documentary:
+                if 'Documentary' not in categories:
+                    categories.append('Documentary')
+            if genre in self.music_performance:
+                if 'Music & Performance' not in categories:
+                    categories.append('Music & Performance')
+            if genre in self.cult_b_movies:
+                if 'Cult & B-Movies' not in categories:
+                    categories.append('Cult & B-Movies')
+
+        return categories if categories else ['Other']
+
+    def categorize_genres_in_df(self, df: pd.DataFrame) -> pd.DataFrame:
+        # Apply genre categorization to the 'genre' column and create a new 'categorized_genre' column
+        df['Genre_Category'] = df['Genres'].apply(self._categorize_genre)
+        return df
