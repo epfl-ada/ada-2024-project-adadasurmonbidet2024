@@ -80,16 +80,7 @@ class Analyzer:
         self.data = data
 
 
-class GenreAnalyzer(Analyzer):
-    def __init__(self, data):
-        super().__init__(data)
-        self.genres_list = ['Action & Adventure', 'Drama', 'Comedy', 'Horror & Thriller', 
-              'Fantasy & Sci-Fi', 'Historical & War', 'Romance', 'Documentary', 
-              'Music & Performance', 'Cult & B-Movies', 'Other']
-        self.data["Genre_Category"] = self.data['Genres'].apply(lambda x: self._categorize_genre(x))
-    
-
-    def _categorize_genre(self,genres_movies) -> list:
+def categorize_genre(genres_movies) -> list:
         action_adventure = ['Action', 'Adventure', 'Thriller', 'War film', 'Action/Adventure', 'Martial Arts Film', 'Wuxia', 'Superhero movie', 'Western', 'Sword and sorcery', 'Spy', 'Supernatural']
         drama = ['Drama', 'Biographical film', 'Crime Drama', 'Family Film', 'Family Drama', 'Historical fiction', 'Biopic [feature]', 'Courtroom Drama', 'Political drama', 'Family-Oriented Adventure', 'Psychological thriller']
         comedy = ['Comedy', 'Romantic comedy', 'Comedy-drama', 'Comedy film', 'Black comedy', 'Slapstick', 'Romantic comedy', 'Musical', 'Satire', 'Parody', 'Comedy horror']
@@ -136,6 +127,15 @@ class GenreAnalyzer(Analyzer):
                     categories.append('Cult & B-Movies')
 
         return categories if categories else ['Other']
+
+class GenreAnalyzer(Analyzer):
+    def __init__(self, data):
+        super().__init__(data)
+        self.genres_list = ['Action & Adventure', 'Drama', 'Comedy', 'Horror & Thriller', 
+              'Fantasy & Sci-Fi', 'Historical & War', 'Romance', 'Documentary', 
+              'Music & Performance', 'Cult & B-Movies', 'Other']
+        self.data["Genre_Category"] = self.data['Genres'].apply(lambda x: categorize_genre(x))
+    
 
     def get_top_names_by_genre(self, nb_of_names):
         genres = self.genres_list
