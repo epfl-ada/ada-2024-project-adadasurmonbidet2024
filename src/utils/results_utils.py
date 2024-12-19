@@ -665,12 +665,12 @@ def interpret_polarity(p):
         return "Very nice guy"
     
 def good_guy_detector(polarity):
-    if -0.25 <= polarity <= 0.05:
+    if -0.17 <= polarity <= 0.30:
         return "Not significant"
-    elif polarity > 0.05:
-        return 1
+    elif polarity > 0.30:
+        return 'Kind'
     else:
-        return 0
+        return 'Bad'
     
 class GoodBadGuyAnalyzer(Analyzer):
     def __init__(self, data):

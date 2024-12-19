@@ -195,7 +195,7 @@ class PredictorModel():
     
     def clean_df(self):
         #Remove unusefull features
-        all_categories = ['Country','Genres','age_category','Character_name','Sex']
+        all_categories = ['Country','Genre_Category','age_category','Character_name','Sex','kindness']
         to_be_dropped = [category for category in all_categories if category != self.feature]
         cleaned_df = self.df.drop(columns=to_be_dropped)
 
@@ -210,7 +210,7 @@ class PredictorModel():
 
         #Create the train and validation set
         X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, random_state=42)
-
+        print(y_train)
         if balancing:
             smote = SMOTE(sampling_strategy='auto', random_state=42)
             X_train, y_train = smote.fit_resample(X_train, y_train)
@@ -220,7 +220,7 @@ class PredictorModel():
         model.fit(X_train, y_train)
 
         #Store the model to avoid recomputing
-        with open(f'model{self.feature}.pkl', 'wb') as f:
+        with open(f'model_{self.feature}.pkl', 'wb') as f:
             pickle.dump(model, f)
         
         #Print report
@@ -246,7 +246,7 @@ class PredictorModel():
 
     def predict_one(self,df):
         #Load the model
-        with open('model.pkl', 'rb') as f:
+        with open(f'model_{self.feature}.pkl', 'rb') as f:
             model = pickle.load(f)
 
         df.drop(columns=['Name'],inplace=True)
