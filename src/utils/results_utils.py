@@ -83,56 +83,56 @@ class GenreAnalyzer(Analyzer):
         self.genres_list = ['Action & Adventure', 'Drama', 'Comedy', 'Horror & Thriller', 
               'Fantasy & Sci-Fi', 'Historical & War', 'Romance', 'Documentary', 
               'Music & Performance', 'Cult & B-Movies', 'Other']
-        self.data["Genre_Category"] = self.data['Genres'].apply(lambda x: self._categorize_genre(x))
+        #self.data["Genre_Category"] = self.data['Genres'].apply(lambda x: self._categorize_genre(x))
     
 
-    def _categorize_genre(self,genres_movies) -> list:
-        action_adventure = ['Action', 'Adventure', 'Thriller', 'War film', 'Action/Adventure', 'Martial Arts Film', 'Wuxia', 'Superhero movie', 'Western', 'Sword and sorcery', 'Spy', 'Supernatural']
-        drama = ['Drama', 'Biographical film', 'Crime Drama', 'Family Film', 'Family Drama', 'Historical fiction', 'Biopic [feature]', 'Courtroom Drama', 'Political drama', 'Family-Oriented Adventure', 'Psychological thriller']
-        comedy = ['Comedy', 'Romantic comedy', 'Comedy-drama', 'Comedy film', 'Black comedy', 'Slapstick', 'Romantic comedy', 'Musical', 'Satire', 'Parody', 'Comedy horror']
-        horror_thriller = ['Horror', 'Psychological horror', 'Horror Comedy', 'Slasher', 'Thriller', 'Crime Thriller', 'Sci-Fi Horror', 'Suspense', 'Zombie Film', 'Natural horror films']
-        fantasy_sci = ['Fantasy', 'Science Fiction', 'Space western', 'Fantasy Adventure', 'Fantasy Comedy', 'Sci-Fi Horror', 'Sci-Fi Thriller', 'Fantasy Drama', 'Dystopia', 'Alien Film', 'Cyberpunk', 'Time travel']
-        historical_war = ['Historical drama', 'Historical fiction', 'Historical Epic', 'Epic', 'War effort', 'War film', 'Period piece', 'Courtroom Drama']
-        romance = ['Romance Film', 'Romantic drama', 'Romance', 'Romantic fantasy', 'Marriage Drama']
-        documentary = ['Documentary', 'Docudrama', 'Biography', 'Historical Documentaries', 'Mondo film', 'Patriotic film', 'Educational']
-        music_performance = ['Musical', 'Music', 'Musical Drama', 'Musical comedy', 'Dance', 'Jukebox musical', 'Concert film']
-        cult_b_movies = ['Cult', 'B-movie', 'Indie', 'Experimental film', 'Surrealism', 'Avant-garde', 'Grindhouse', 'Blaxploitation', 'Camp']
+    # def _categorize_genre(self,genres_movies) -> list:
+    #     action_adventure = ['Action', 'Adventure', 'Thriller', 'War film', 'Action/Adventure', 'Martial Arts Film', 'Wuxia', 'Superhero movie', 'Western', 'Sword and sorcery', 'Spy', 'Supernatural']
+    #     drama = ['Drama', 'Biographical film', 'Crime Drama', 'Family Film', 'Family Drama', 'Historical fiction', 'Biopic [feature]', 'Courtroom Drama', 'Political drama', 'Family-Oriented Adventure', 'Psychological thriller']
+    #     comedy = ['Comedy', 'Romantic comedy', 'Comedy-drama', 'Comedy film', 'Black comedy', 'Slapstick', 'Romantic comedy', 'Musical', 'Satire', 'Parody', 'Comedy horror']
+    #     horror_thriller = ['Horror', 'Psychological horror', 'Horror Comedy', 'Slasher', 'Thriller', 'Crime Thriller', 'Sci-Fi Horror', 'Suspense', 'Zombie Film', 'Natural horror films']
+    #     fantasy_sci = ['Fantasy', 'Science Fiction', 'Space western', 'Fantasy Adventure', 'Fantasy Comedy', 'Sci-Fi Horror', 'Sci-Fi Thriller', 'Fantasy Drama', 'Dystopia', 'Alien Film', 'Cyberpunk', 'Time travel']
+    #     historical_war = ['Historical drama', 'Historical fiction', 'Historical Epic', 'Epic', 'War effort', 'War film', 'Period piece', 'Courtroom Drama']
+    #     romance = ['Romance Film', 'Romantic drama', 'Romance', 'Romantic fantasy', 'Marriage Drama']
+    #     documentary = ['Documentary', 'Docudrama', 'Biography', 'Historical Documentaries', 'Mondo film', 'Patriotic film', 'Educational']
+    #     music_performance = ['Musical', 'Music', 'Musical Drama', 'Musical comedy', 'Dance', 'Jukebox musical', 'Concert film']
+    #     cult_b_movies = ['Cult', 'B-movie', 'Indie', 'Experimental film', 'Surrealism', 'Avant-garde', 'Grindhouse', 'Blaxploitation', 'Camp']
 
-        categories = []
+    #     categories = []
 
-        for genre in genres_movies:
-            if genre in action_adventure:
-                if 'Action & Adventure' not in categories:
-                    categories.append('Action & Adventure')
-            if genre in drama:
-                if 'Drama' not in categories:
-                    categories.append('Drama')
-            if genre in comedy:
-                if 'Comedy' not in categories:
-                    categories.append('Comedy')
-            if genre in horror_thriller:
-                if 'Horror & Thriller' not in categories:
-                    categories.append('Horror & Thriller')
-            if genre in fantasy_sci:
-                if 'Fantasy & Sci-Fi' not in categories:
-                    categories.append('Fantasy & Sci-Fi')
-            if genre in historical_war:
-                if 'Historical & War' not in categories:
-                    categories.append('Historical & War')
-            if genre in romance:
-                if 'Romance' not in categories:
-                    categories.append('Romance')
-            if genre in documentary:
-                if 'Documentary' not in categories:
-                    categories.append('Documentary')
-            if genre in music_performance:
-                if 'Music & Performance' not in categories:
-                    categories.append('Music & Performance')
-            if genre in cult_b_movies:
-                if 'Cult & B-Movies' not in categories:
-                    categories.append('Cult & B-Movies')
+    #     for genre in genres_movies:
+    #         if genre in action_adventure:
+    #             if 'Action & Adventure' not in categories:
+    #                 categories.append('Action & Adventure')
+    #         if genre in drama:
+    #             if 'Drama' not in categories:
+    #                 categories.append('Drama')
+    #         if genre in comedy:
+    #             if 'Comedy' not in categories:
+    #                 categories.append('Comedy')
+    #         if genre in horror_thriller:
+    #             if 'Horror & Thriller' not in categories:
+    #                 categories.append('Horror & Thriller')
+    #         if genre in fantasy_sci:
+    #             if 'Fantasy & Sci-Fi' not in categories:
+    #                 categories.append('Fantasy & Sci-Fi')
+    #         if genre in historical_war:
+    #             if 'Historical & War' not in categories:
+    #                 categories.append('Historical & War')
+    #         if genre in romance:
+    #             if 'Romance' not in categories:
+    #                 categories.append('Romance')
+    #         if genre in documentary:
+    #             if 'Documentary' not in categories:
+    #                 categories.append('Documentary')
+    #         if genre in music_performance:
+    #             if 'Music & Performance' not in categories:
+    #                 categories.append('Music & Performance')
+    #         if genre in cult_b_movies:
+    #             if 'Cult & B-Movies' not in categories:
+    #                 categories.append('Cult & B-Movies')
 
-        return categories if categories else ['Other']
+    #     return categories if categories else ['Other']
 
     def get_top_names_by_genre(self, nb_of_names):
         genres = self.genres_list
