@@ -220,7 +220,7 @@ class PredictorModel():
         model.fit(X_train, y_train)
 
         #Store the model to avoid recomputing
-        with open('model.pkl', 'wb') as f:
+        with open(f'model{self.feature}.pkl', 'wb') as f:
             pickle.dump(model, f)
         
         #Print report

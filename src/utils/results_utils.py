@@ -85,7 +85,7 @@ class GenreAnalyzer(Analyzer):
         self.genres_list = ['Action & Adventure', 'Drama', 'Comedy', 'Horror & Thriller', 
               'Fantasy & Sci-Fi', 'Historical & War', 'Romance', 'Documentary', 
               'Music & Performance', 'Cult & B-Movies', 'Other']
-        #self.data["Genre_Category"] = self.data['Genres'].apply(lambda x: self._categorize_genre(x))
+        #self.data["Genre_Category"] = self.data['Genre_Category'].apply(lambda x: self._categorize_genre(x))
     
 
     # def _categorize_genre(self,genres_movies) -> list:
@@ -142,7 +142,6 @@ class GenreAnalyzer(Analyzer):
         self.genres_list = ['Action & Adventure', 'Drama', 'Comedy', 'Horror & Thriller', 
               'Fantasy & Sci-Fi', 'Historical & War', 'Romance', 'Documentary', 
               'Music & Performance', 'Cult & B-Movies', 'Other']
-        self.data["Genre_Category"] = self.data['Genres'].apply(lambda x: categorize_genre(x))
     
 
     def get_top_names_by_genre(self, nb_of_names):
@@ -229,8 +228,8 @@ class GenreAnalyzer(Analyzer):
         results = {}
 
         for genre in genres:
-            male_genre_names = df_male[df_male['Genres'].apply(lambda categories: genre in categories)]
-            female_genre_names = df_female[df_female['Genres'].apply(lambda categories: genre in categories)]
+            male_genre_names = df_male[df_male['Genre_Category'].apply(lambda categories: genre in categories)]
+            female_genre_names = df_female[df_female['Genre_Category'].apply(lambda categories: genre in categories)]
 
             top_male_positive_names = male_genre_names.nlargest(nb_of_names, 'Polarity')['Character_Name'].tolist()
             top_female_positive_names = female_genre_names.nlargest(nb_of_names, 'Polarity')['Character_Name'].tolist()
@@ -679,7 +678,6 @@ class GoodBadGuyAnalyzer(Analyzer):
         self.genres_list = ['Action & Adventure', 'Drama', 'Comedy', 'Horror & Thriller', 
               'Fantasy & Sci-Fi', 'Historical & War', 'Romance', 'Documentary', 
               'Music & Performance', 'Cult & B-Movies', 'Other']
-        self.data["Genre_Category"] = self.data['Genres'].apply(lambda x: self._categorize_genre(x))
 
     def _categorize_genre(self,genres_movies) -> list:
         action_adventure = ['Action', 'Adventure', 'Thriller', 'War film', 'Action/Adventure', 'Martial Arts Film', 'Wuxia', 'Superhero movie', 'Western', 'Sword and sorcery', 'Spy', 'Supernatural']
