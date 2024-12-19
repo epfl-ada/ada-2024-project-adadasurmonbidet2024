@@ -51,7 +51,7 @@ def plot_sex_distribution_with_top_names(df_char_cleaned: pd.DataFrame):
             name='Male' if sex == 'M' else 'Female',
             marker_color=color,
             hovertext=[
-                f"Total count: {sex_counts[sex]}<br>Top names: {', '.join(top_names[sex])}"
+                f"Count: {sex_counts[sex]}<br>Top Names: {', '.join(top_names[sex])}"
             ],
             hoverinfo="text"
         ))
@@ -60,9 +60,8 @@ def plot_sex_distribution_with_top_names(df_char_cleaned: pd.DataFrame):
     fig.update_layout(
         title='Total Names Count by Gender with Top 3 Names',
         xaxis_title='Gender',
-        yaxis_title='Total Names Count',
+        yaxis_title='Name Count',
         xaxis=dict(tickangle=0),
-        legend=dict(title="Gender")
     )
 
     # Show the plot
@@ -80,53 +79,6 @@ class Analyzer:
         self.data = data
 
 
-def categorize_genre(genres_movies) -> list:
-        action_adventure = ['Action', 'Adventure', 'Thriller', 'War film', 'Action/Adventure', 'Martial Arts Film', 'Wuxia', 'Superhero movie', 'Western', 'Sword and sorcery', 'Spy', 'Supernatural']
-        drama = ['Drama', 'Biographical film', 'Crime Drama', 'Family Film', 'Family Drama', 'Historical fiction', 'Biopic [feature]', 'Courtroom Drama', 'Political drama', 'Family-Oriented Adventure', 'Psychological thriller']
-        comedy = ['Comedy', 'Romantic comedy', 'Comedy-drama', 'Comedy film', 'Black comedy', 'Slapstick', 'Romantic comedy', 'Musical', 'Satire', 'Parody', 'Comedy horror']
-        horror_thriller = ['Horror', 'Psychological horror', 'Horror Comedy', 'Slasher', 'Thriller', 'Crime Thriller', 'Sci-Fi Horror', 'Suspense', 'Zombie Film', 'Natural horror films']
-        fantasy_sci = ['Fantasy', 'Science Fiction', 'Space western', 'Fantasy Adventure', 'Fantasy Comedy', 'Sci-Fi Horror', 'Sci-Fi Thriller', 'Fantasy Drama', 'Dystopia', 'Alien Film', 'Cyberpunk', 'Time travel']
-        historical_war = ['Historical drama', 'Historical fiction', 'Historical Epic', 'Epic', 'War effort', 'War film', 'Period piece', 'Courtroom Drama']
-        romance = ['Romance Film', 'Romantic drama', 'Romance', 'Romantic fantasy', 'Marriage Drama']
-        documentary = ['Documentary', 'Docudrama', 'Biography', 'Historical Documentaries', 'Mondo film', 'Patriotic film', 'Educational']
-        music_performance = ['Musical', 'Music', 'Musical Drama', 'Musical comedy', 'Dance', 'Jukebox musical', 'Concert film']
-        cult_b_movies = ['Cult', 'B-movie', 'Indie', 'Experimental film', 'Surrealism', 'Avant-garde', 'Grindhouse', 'Blaxploitation', 'Camp']
-
-        categories = []
-
-        for genre in genres_movies:
-            if genre in action_adventure:
-                if 'Action & Adventure' not in categories:
-                    categories.append('Action & Adventure')
-            if genre in drama:
-                if 'Drama' not in categories:
-                    categories.append('Drama')
-            if genre in comedy:
-                if 'Comedy' not in categories:
-                    categories.append('Comedy')
-            if genre in horror_thriller:
-                if 'Horror & Thriller' not in categories:
-                    categories.append('Horror & Thriller')
-            if genre in fantasy_sci:
-                if 'Fantasy & Sci-Fi' not in categories:
-                    categories.append('Fantasy & Sci-Fi')
-            if genre in historical_war:
-                if 'Historical & War' not in categories:
-                    categories.append('Historical & War')
-            if genre in romance:
-                if 'Romance' not in categories:
-                    categories.append('Romance')
-            if genre in documentary:
-                if 'Documentary' not in categories:
-                    categories.append('Documentary')
-            if genre in music_performance:
-                if 'Music & Performance' not in categories:
-                    categories.append('Music & Performance')
-            if genre in cult_b_movies:
-                if 'Cult & B-Movies' not in categories:
-                    categories.append('Cult & B-Movies')
-
-        return categories if categories else ['Other']
 
 class GenreAnalyzer(Analyzer):
     def __init__(self, data):
@@ -134,7 +86,6 @@ class GenreAnalyzer(Analyzer):
         self.genres_list = ['Action & Adventure', 'Drama', 'Comedy', 'Horror & Thriller', 
               'Fantasy & Sci-Fi', 'Historical & War', 'Romance', 'Documentary', 
               'Music & Performance', 'Cult & B-Movies', 'Other']
-        self.data["Genre_Category"] = self.data['Genres'].apply(lambda x: categorize_genre(x))
     
 
     def get_top_names_by_genre(self, nb_of_names):
@@ -165,14 +116,14 @@ class GenreAnalyzer(Analyzer):
     def create_sunburst_data(self,frequent_names_f):
         sunburst_data = []
         sunburst_data.append({
-            'character': "Movies' Genres",
+            'character': "Movie Genres",
             'parent': '',
         })
 
         for genre in frequent_names_f.columns:
             sunburst_data.append({
                 'character': genre,
-                'parent': "Movies' Genres", 
+                'parent': "Movie Genres", 
             })
 
         for genre in frequent_names_f.columns:
@@ -221,8 +172,8 @@ class GenreAnalyzer(Analyzer):
         results = {}
 
         for genre in genres:
-            male_genre_names = df_male[df_male['Genres'].apply(lambda categories: genre in categories)]
-            female_genre_names = df_female[df_female['Genres'].apply(lambda categories: genre in categories)]
+            male_genre_names = df_male[df_male['Genre_Category'].apply(lambda categories: genre in categories)]
+            female_genre_names = df_female[df_female['Genre_Category'].apply(lambda categories: genre in categories)]
 
             top_male_positive_names = male_genre_names.nlargest(nb_of_names, 'Polarity')['Character_Name'].tolist()
             top_female_positive_names = female_genre_names.nlargest(nb_of_names, 'Polarity')['Character_Name'].tolist()
@@ -293,8 +244,8 @@ class GenderAnalyzer(Analyzer):
 
         male_count = df_letter[df_letter['Sex'] == 'M'].shape[0]
         female_count = df_letter[df_letter['Sex'] == 'F'].shape[0]
-        letter_counts_H_percentage = letter_counts_H / male_count*100
-        letter_counts_F_percentage = letter_counts_F / female_count*100
+        letter_counts_H_percentage = letter_counts_H / male_count
+        letter_counts_F_percentage = letter_counts_F / female_count
         letter_counts = pd.concat([letter_counts_H_percentage, letter_counts_F_percentage], axis=1)
         letter_counts.columns = ['letter_men', 'letter_women']
         letter_counts = letter_counts.head(26)  # Limit to top 26 letters
@@ -312,9 +263,9 @@ class GenderAnalyzer(Analyzer):
         letter_counts, top_letter_names = self._create_letter_count_df(letter_position)
 
         if letter_position == 0:
-            title = 'Percentage of Names Starting by Each Letter by Gender'
+            title = 'Distribution of Names Starting by each Letter by Gender'
         else:
-            title = 'Percentage of Names Ending by Each Letter by Gender'
+            title = 'Distribution of Names Ending by each Letter by Gender'
 
         fig = go.Figure()
 
@@ -338,11 +289,10 @@ class GenderAnalyzer(Analyzer):
 
         fig.update_layout(
             title=title,
-            xaxis_title='Letter of the Name',
-            yaxis_title='% of Total Names by Gender',
+            xaxis_title='Letter',
+            yaxis_title='Normalized Count',
             barmode='group',
             yaxis=dict(ticksuffix='%'),
-            legend_title="Gender"
         )
 
         fig.show()
@@ -659,12 +609,12 @@ def interpret_polarity(p):
         return "Very nice guy"
     
 def good_guy_detector(polarity):
-    if -0.25 <= polarity <= 0.05:
+    if -0.17 <= polarity <= 0.30:
         return "Not significant"
-    elif polarity > 0.05:
-        return 1
+    elif polarity > 0.30:
+        return 'Kind'
     else:
-        return 0
+        return 'Bad'
     
 class GoodBadGuyAnalyzer(Analyzer):
     def __init__(self, data):
@@ -672,7 +622,6 @@ class GoodBadGuyAnalyzer(Analyzer):
         self.genres_list = ['Action & Adventure', 'Drama', 'Comedy', 'Horror & Thriller', 
               'Fantasy & Sci-Fi', 'Historical & War', 'Romance', 'Documentary', 
               'Music & Performance', 'Cult & B-Movies', 'Other']
-        self.data["Genre_Category"] = self.data['Genres'].apply(lambda x: self._categorize_genre(x))
 
     def _categorize_genre(self,genres_movies) -> list:
         action_adventure = ['Action', 'Adventure', 'Thriller', 'War film', 'Action/Adventure', 'Martial Arts Film', 'Wuxia', 'Superhero movie', 'Western', 'Sword and sorcery', 'Spy', 'Supernatural']
