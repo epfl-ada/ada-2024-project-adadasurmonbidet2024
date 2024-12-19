@@ -15,6 +15,8 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import f1_score, accuracy_score
 from imblearn.over_sampling import SMOTE
 from sklearn.metrics import classification_report
+from sklearn.preprocessing import StandardScaler
+from sklearn.decomposition import PCA
 import pickle
 
 def get_vowel_stats(df: pd.DataFrame, category:str) -> tuple:
@@ -58,8 +60,6 @@ def find_unusual_characters(df, column_name, allowed_chars='abcdefghijklmnopqrst
     print("Number of rows containing special characters:", unusual_count)
     print("Unusual Characters Found:", unusual_characters)
 
-
-
 class NameFeatureProcessor:
     def __init__(self,category, ngram_range = (2, 3)):
         """
@@ -73,10 +73,9 @@ class NameFeatureProcessor:
     def analyze_name(name):
         if not isinstance(name, str) or not name.strip():  # Handle empty or invalid names
             return pd.Series({
-                'Length': 0,  
-                'Vowel Count': 0,
-                'Consonant Count': 0,
-                'Vowel/Consonant Ratio': 0,
+                'name_length': 0,  
+                'vowel_count': 0,
+                'consonant_count': 0,
             })
 
         vowels = set('aeiouyüéèäöÃëçÖïá')
@@ -85,10 +84,9 @@ class NameFeatureProcessor:
         vowel_count = sum(1 for char in name.lower() if char in vowels)
         consonant_count = sum(1 for char in name.lower() if char in consonants)
         return pd.Series({
-            'Length': length,
-            'Vowel Count': vowel_count,
-            'Consonant Count': consonant_count,
-            'Vowel/Consonant Ratio': vowel_count / consonant_count if consonant_count > 0 else 0,
+            'name_length': length,
+            'vowel_count': vowel_count,
+            'consonant_count': consonant_count,
         })
 
     @staticmethod
@@ -232,9 +230,8 @@ class PredictorModel():
         augmented_alphabet = 'abcdefghijklmnopqrstuvwxyzéèíá'
 
         df_pred = pd.DataFrame([name], columns=['Name'])
-        get_vowel_stats(df_pred,'Name')
         pred_processor = NameFeatureProcessor('Name',ngram_range=(2,2))
-        df_pred =pred_processor.process(df_pred,alphabet = augmented_alphabet,analyze_name = False, diacritic = False, phonetics = False, first_last = True, ngram=False)
+        df_pred =pred_processor.process(df_pred,alphabet = augmented_alphabet, analyze_name = True, diacritic = False, phonetics = False, first_last = True, ngram=False)
 
         with open(f'hashing_vectorizer.pkl', 'rb') as f:
             vectorizer = pickle.load(f)
@@ -314,3 +311,90 @@ class GenreCategorizer:
         # Apply genre categorization to the 'genre' column and create a new 'categorized_genre' column
         df['Genre_Category'] = df['Genres'].apply(self._categorize_genre)
         return df
+    
+class PCAProcessor:
+    def __init__(self, n_components=100):
+        """
+        Initialize the PCAProcessor with a specified number of components.
+        """
+        self.n_components = n_components
+        self.scaler = StandardScaler()
+        self.pca = PCA(n_components=n_components)
+        self.pca_features = None
+        self.explained_variance_ratio_ = None
+        self.feature_names_ = None  # Store feature names for consistency
+
+    def fit_transform(self, df, drop_columns=None):
+        """
+        Fit the PCA model and transform the input DataFrame.
+        """
+        # Drop specified columns if provided
+        if drop_columns:
+            df_features = df.drop(columns=drop_columns)
+        else:
+            df_features = df.copy()
+
+        # Store feature names for later use
+        self.feature_names_ = df_features.columns.tolist()
+
+        # Standardize the data
+        features_scaled = self.scaler.fit_transform(df_features)
+
+        # Apply PCA
+        self.pca_features = self.pca.fit_transform(features_scaled)
+        self.explained_variance_ratio_ = self.pca.explained_variance_ratio_
+
+        # Create a DataFrame for the PCA-transformed data
+        pca_columns = [f'PC{i+1}' for i in range(self.n_components)]
+        return pd.DataFrame(self.pca_features, columns=pca_columns, index=df.index)
+
+    def transform(self, df, drop_columns=None):
+        """
+        Transform new data using the fitted PCA model.
+        """
+        if not hasattr(self.pca, 'components_'):
+            raise ValueError("PCA has not been fitted. Run `fit_transform` first.")
+
+        # Drop specified columns if provided
+        if drop_columns:
+            df_features = df.drop(columns=drop_columns)
+        else:
+            df_features = df.copy()
+
+        # Ensure the input features match the trained feature set
+        for feature in self.feature_names_:
+            if feature not in df_features.columns:
+                df_features[feature] = 0  # Add missing features with default value
+
+        # Standardize the data using the fitted scaler
+        features_scaled = self.scaler.transform(df_features[self.feature_names_])
+
+        # Apply the fitted PCA
+        transformed_features = self.pca.transform(features_scaled)
+
+        # Create a DataFrame for the PCA-transformed data
+        pca_columns = [f'PC{i+1}' for i in range(self.n_components)]
+        return pd.DataFrame(transformed_features, columns=pca_columns, index=df.index)
+
+    def plot_explained_variance(self):
+        """
+        Plot the cumulative explained variance by PCA components.
+        """
+        if self.explained_variance_ratio_ is None:
+            raise ValueError("PCA has not been fitted. Run `fit_transform` first.")
+        
+        plt.figure(figsize=(8, 5))
+        plt.plot(self.pca.explained_variance_ratio_.cumsum())
+        plt.title("Cumulative Explained Variance by PCA Components")
+        plt.xlabel("Number of Components")
+        plt.ylabel("Cumulative Explained Variance")
+        plt.grid()
+        plt.show()
+
+    def merge_with_original(self, original_df, pca_df, keep_columns):
+        """
+        Merge the PCA-transformed DataFrame with the original DataFrame.
+        """
+        # Retain only specified columns and merge with PCA DataFrame
+        merged_df = pd.concat([original_df[keep_columns], pca_df], axis=1)
+        return merged_df
