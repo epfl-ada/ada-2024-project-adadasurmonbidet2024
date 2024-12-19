@@ -61,7 +61,8 @@ def filter_country_names(country: str) -> str:
     region_mappings = {
         "Germanic": ["germany", "austria", "switzerland", "luxembourg", "liechtenstein", "netherlands"],
         "Romance": ["france", "belgium", "italy", "andorra", "romania", "moldova"],
-        "Slavic": ["ex-ussr","russia", "ukraine", "belarus", "poland", "czech republic", "slovakia", "bulgaria", "serbia", "croatia", "bosnia and herzegovina", "montenegro", "macedonia", "slovenia", "kazakhstan", "uzbekistan", "armenia", "georgia", "azerbaijan"],
+        "Eastern Slavic": ["russia", "ukraine", "belarus", "kazakhstan", "uzbekistan", "armenia", "georgia", "azerbaijan", "ex-ussr"],
+        "Southern and Western Slavic": ["poland", "czech republic", "slovakia", "bulgaria", "serbia", "croatia", "bosnia and herzegovina", "montenegro", "macedonia", "slovenia"],       
         "English-Speaking": ["uk", "usa", "canada", "ireland", "australia", "new zealand"],
         "Baltic": ["lithuania", "latvia", "estonia"],
         "Hispanic": ["spain", "mexico", "argentina", "brazil", "portugal", "chile", "colombia", "peru", "ecuador", "venezuela", "paraguay", "uruguay", "cuba", "jamaica", "trinidad and tobago"],

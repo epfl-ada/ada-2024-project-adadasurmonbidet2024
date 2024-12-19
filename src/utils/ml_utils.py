@@ -96,7 +96,7 @@ class NameFeatureProcessor:
         """
         Create columns for the first and last letter of the name for an extended alphabet.
         Each column corresponds to a letter of the alphabet plus additional diacritic letters.
-    """
+        """
         # Define the extended alphabet
         if alphabet == None:
             alphabet = 'abcdefghijklmnopqrstuvwxyzüéèäöÃëçÖïáéäÔþçÁøõãæšáàÂùðìôêÖØÀûßýÉïåÓúśíłÅÞūžâÍÈëōîñüèóöÕò'
