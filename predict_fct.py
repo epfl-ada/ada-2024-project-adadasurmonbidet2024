@@ -129,4 +129,4 @@ def prediction_fct(name = 'José'):
     origin = create_and_predict_origin(name, predict_origin)
     return genres, gender, age, kindness, origin
 
-prediction_fct()
+prediction_fct('Fanny')
