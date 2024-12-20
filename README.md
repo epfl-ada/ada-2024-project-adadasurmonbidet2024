@@ -1,4 +1,4 @@
-# ADAdasurmonbidet2024 - DISCOVER CHARACTERS' FEATURES BASED ON FIRST NAME
+# [ADAdasurmonbidet2024 - DISCOVER CHARACTERS' FEATURES BASED ON FIRST NAME](https://fannymissillier.github.io)
 
 Link to the Data Story: 
 
@@ -23,7 +23,7 @@ About how naming conventions differ across contexts:
 ## Datasets
 
 ### CMU Movie Summary Corpus
-The **CMU Movie Summary Corpus** is a dataset containing detailed information about movies and their metadata. The dataset includes:
+The **CMU Movie Summary Corpus** is a dataset provides a detailed view of over 42,000 movie plot summaries, extracted from Wikipedia and aligned with metadata from Freebase:
 
 - **Movie Metadata**:
   - Box office revenue
@@ -42,8 +42,6 @@ The **CMU Movie Summary Corpus** is a dataset containing detailed information ab
   - Stanford CoreNLP-processed summaries, which include tagging, parsing, Named Entity Recognition (NER), and coreference resolution.
 
 **Source**: [CMU Movie Summary Corpus](http://www.cs.cmu.edu/~ark/personas/)
-
-This dataset provides a detailed view of over 42,000 movie plot summaries, extracted from Wikipedia and aligned with metadata from Freebase.
 
 ---
 
