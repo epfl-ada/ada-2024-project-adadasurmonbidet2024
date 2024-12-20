@@ -6,11 +6,11 @@ from sklearn.preprocessing import MultiLabelBinarizer
 ### Loading of the predictive models
 
 # Path to the different models
-path_genre = 'model_genres.pkl'
-path_gender = 'model_Sex.pkl'
-path_age = 'model_age_category.pkl'
-path_kindness = 'model_kindness.pkl'
-path_origin = 'model_Country.pkl'
+path_genre = 'predictive_model/model_genres.pkl'
+path_gender = 'predictive_model/model_Sex.pkl'
+path_age = 'predictive_model/model_age_category.pkl'
+path_kindness = 'predictive_model/model_kindness.pkl'
+path_origin = 'predictive_model/model_Country.pkl'
 
 # Load the models
 with open(path_genre, 'rb') as file:
@@ -46,7 +46,7 @@ def feature_creation_g(name):
     df_pred = pred_processor.process(df_pred, alphabet=augmented_alphabet, analyze_name=True, diacritic=False, phonetics=False, first_last=True, ngram=False)
     
     # Load pre-trained HashingVectorizer
-    with open('hashing_vectorizer_genre.pkl', 'rb') as f:
+    with open('predictive_model/hashing_vectorizer_genre.pkl', 'rb') as f:
         vectorizer = pickle.load(f)
     
     # Add ngram using the vectorizer
@@ -81,7 +81,7 @@ def feature_creation(name):
     pred_processor = NameFeatureProcessor('Name',ngram_range=(2,2))
     df_pred =pred_processor.process(df_pred,alphabet = augmented_alphabet, analyze_name = True, diacritic = False, phonetics = False, first_last = True, ngram=False)
 
-    with open(f'hashing_vectorizer.pkl', 'rb') as f:
+    with open(f'predictive_model/hashing_vectorizer.pkl', 'rb') as f:
         vectorizer = pickle.load(f)
 
     ngram_name = vectorizer.transform(df_pred['Name'])
@@ -106,7 +106,7 @@ def feature_creation_o(name):
     pred_processor = NameFeatureProcessor('Name',ngram_range=(2,3))
     df_pred =pred_processor.process(df_pred,alphabet = augmented_alphabet,analyze_name = True, diacritic = False, phonetics = False, first_last = True, ngram=False)
 
-    with open(f'hashing_vectorizer_origin.pkl', 'rb') as f:
+    with open(f'predictive_model/hashing_vectorizer_origin.pkl', 'rb') as f:
         vectorizer = pickle.load(f)
 
     ngram_name = vectorizer.transform(df_pred['Name'])
