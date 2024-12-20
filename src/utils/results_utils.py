@@ -481,9 +481,9 @@ class CountryAnalyzer(Analyzer):
 ### ---------- Phonetic Analysis ---------------------
 
 class PhoneticAnalyzer(Analyzer):
-    def __init__(self, data,manner_groups,manner_names):
+    def __init__(self, data,manner_groups,manner_names, column_name = 'Character_name'):
         super().__init__(data)
-        self.data['Phonetic'] = self.data["Character_name"].apply(lambda x: doublemetaphone(x)[0])
+        self.data['Phonetic'] = self.data[column_name].apply(lambda x: doublemetaphone(x)[0])
         self.manner_groups = manner_groups
         self.manner_names = manner_names
 
@@ -546,6 +546,18 @@ class PhoneticAnalyzer(Analyzer):
         manner_age_df['Percent']=manner_age_df.apply(lambda row: row['Count'] /
             tot_nb_names_per_age[tot_nb_names_per_age['age_category']==row['age_category']]['count'].values[0],axis=1) *100
         return manner_age_df
+    
+    def phonetics_by_origin(self) -> pd.DataFrame:
+        origins_order = ['Slavic', 'Romance', 'East Asian', 'English-Speaking', 'Hispanic']
+        tot_nb_names_per_origin = self.data['Origin'].value_counts().reset_index()
+
+        manner_origin_df = self.assign_phonetic_group('Origin')
+        manner_origin_df = manner_origin_df.groupby(['Consonant_Group', 'Origin'])['Origin'].size().reset_index(name='Count')
+
+        # We divide by the total number of characters in each origin category to normalize the values
+        manner_origin_df['Percent'] = manner_origin_df.apply(lambda row: row['Count'] /
+            tot_nb_names_per_origin[tot_nb_names_per_origin['Origin'] == row['Origin']]['count'].values[0], axis=1) * 100
+        return manner_origin_df
 
 
 
