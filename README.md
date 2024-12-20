@@ -94,13 +94,14 @@ We identified statistically significant associations between certain Names Chara
 We classified the Characters from the CMU Movie Summary Corpus Dataset as "Nice guys", "Bad guys" or "Neutral" with a Sentimental Analysis performed on the Movie Summaries. Then we created and model to link the Character Names to a Morality.
 
 ### 6. Focus on Characteristics of "Bad guys" in American and Russian Movies
+Answering the Research Questions and finding patterns.
 
 ### 7. Final Predictive Model 
 We aim to develop a “Character ID” model that predicts the most likely characteristics of a movie character based on their first name. The model would generate a character profile, including these attributes : Gender, Age, Movie Genre, Origin and Morality
 
 ## Organisation:
-- Luca: Models and Plots
-- Ainhoa: Statistics and Plots
-- Fanny: Sentimental Analysis and Website
-- Zacharie: Models and Website
-- Amaury: Models and Final Predictive Model
+- **Luca:** Models and Plots
+- **Ainhoa:** Statistics and Plots
+- **Fanny:** Sentimental Analysis and Website
+- **Zacharie:** Models and Website
+- **Amaury:** Models and Final Predictive Model
