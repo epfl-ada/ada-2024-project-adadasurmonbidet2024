@@ -79,6 +79,7 @@ class Analyzer:
         self.data = data
 
 
+
 class GenreAnalyzer(Analyzer):
     def __init__(self, data):
         super().__init__(data)
@@ -172,14 +173,14 @@ class GenreAnalyzer(Analyzer):
     def create_sunburst_data(self,frequent_names_f):
         sunburst_data = []
         sunburst_data.append({
-            'character': "Movies' Genres",
+            'character': "Movie Genres",
             'parent': '',
         })
 
         for genre in frequent_names_f.columns:
             sunburst_data.append({
                 'character': genre,
-                'parent': "Movies' Genres", 
+                'parent': "Movie Genres", 
             })
 
         for genre in frequent_names_f.columns:
