@@ -58,7 +58,9 @@ The **Name Ethnicity Dataset**, sourced from Kaggle, provides a collection of na
 **Source**: [Name Ethnicity Dataset on Kaggle](https://www.kaggle.com/datasets/tommylariccia/name-ethnicity-data)
 
 ## Repository Organization
-
+'''
+à compléter
+'''
 
 ## Methods 
 
