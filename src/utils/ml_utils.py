@@ -398,3 +398,61 @@ class PCAProcessor:
         # Retain only specified columns and merge with PCA DataFrame
         merged_df = pd.concat([original_df[keep_columns], pca_df], axis=1)
         return merged_df
+
+class PredictorModel_o():
+    def __init__(self,df:pd.DataFrame,feature:str):
+        self.df = df
+        #Feature we want to predict
+        self.feature = feature
+
+    def train(self,df, balancing=False):
+        X = df.drop(columns=[self.feature])
+        y = df[self.feature]
+
+        #Create the train and validation set
+        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.1, random_state=42)
+        if balancing:
+            smote = SMOTE(sampling_strategy='auto', random_state=42)
+            X_train, y_train = smote.fit_resample(X_train, y_train)
+
+        #Training
+        model = MLPClassifier(solver='adam',alpha=10**-5, hidden_layer_sizes=(10,10,2), max_iter=300, random_state=42)
+        model.fit(X_train, y_train)
+
+        #Store the model to avoid recomputing
+        with open(f'model_{self.feature}.pkl', 'wb') as f:
+            pickle.dump(model, f)
+        
+        #Print report
+        y_pred = model.predict(X_val)
+        print(classification_report(y_val,y_pred))
+
+    
+    def feature_creation(self,name):
+        augmented_alphabet = 'abcdefghijklmnopqrstuvwxyzéèíá'
+
+        df_pred = pd.DataFrame([name], columns=['Name'])
+        pred_processor = NameFeatureProcessor('Name',ngram_range=(2,3))
+        df_pred =pred_processor.process(df_pred,alphabet = augmented_alphabet,analyze_name = True, diacritic = False, phonetics = False, first_last = True, ngram=False)
+
+        with open(f'hashing_vectorizer_origin.pkl', 'rb') as f:
+            vectorizer = pickle.load(f)
+
+        ngram_name = vectorizer.transform(df_pred['Name'])
+        ngram_name_df = pd.DataFrame(ngram_name.toarray())
+        df_pred = pd.concat([df_pred, ngram_name_df], axis=1)
+        return df_pred
+
+    def predict_one(self,df):
+        #Load the model
+        with open(f'model_{self.feature}.pkl', 'rb') as f:
+            model = pickle.load(f)
+
+        df.drop(columns=['Name'],inplace=True)
+        df.columns = df.columns.astype(str)
+        return model.predict(df)
+    
+    def create_and_predict(self,name):
+        df = self.feature_creation(name)
+        pred = self.predict_one(df)
+        print('Prediction: ',pred)
