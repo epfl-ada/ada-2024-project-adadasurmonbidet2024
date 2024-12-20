@@ -58,9 +58,41 @@ The **Name Ethnicity Dataset**, sourced from Kaggle, provides a collection of na
 **Source**: [Name Ethnicity Dataset on Kaggle](https://www.kaggle.com/datasets/tommylariccia/name-ethnicity-data)
 
 ## Repository Organization
-'''
-à compléter
-'''
+```
+├── data                                                            # Contains preprocessed data or intermediate data
+│   ├── Image
+│   ├── Plot
+│   ├── cleaned.csv
+│   ├── Ethnicity_on_character_names.csv
+│   ├── movie_character_ethnicity.csv
+│   ├── name_ethnicity.csv
+│   ├── sentences_by_character.csv
+│   └── sentimental_analysis.csv
+│
+├── plots                                                           # Plots for website
+├── predictive_model                                                # Predictive models developped to predict a Character ID
+│
+├── src
+│   ├── MovieSummaries                                              # CMU Movie Summary Corpus
+│   ├── new_dataset                                                 # Name Ethnicity Dataset
+│   ├── scripts
+│   │   ├── load_some_dataset_and_save_it_in_data_directory.py      # Preprocessing of CMU Movie Summary Corpus
+│   │   ├── preprocess_ethnicity.py                                 # Preprocessing of Name Ethnicity Dataset
+│   │   └── sentimental_analysis.py                                 # Sentimental analysis script
+│   │
+│   └── utils                                                       # Functions used in the data preprocessing, result notebook or for models
+│       ├── __init__.py                                             
+│       ├── data_utils.py
+│       ├── ml_utils.py
+│       └── results_utils.py
+├── test    
+├── .gitignore
+├── predict_fct.py                                                  # Final function that calls the 4 models and returns the Character ID
+├── README.md
+├── requirements.txt          
+└── results.ipynb                                                   # Jupyter notbook containing all the results 
+
+```
 
 ## Methods 
 
